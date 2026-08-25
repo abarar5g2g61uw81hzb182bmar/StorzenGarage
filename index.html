@@ -1,35 +1,32 @@
-
 <!DOCTYPE html>
-<html lang="en" class="dark"> <!-- Defaulting to dark mode for that premium feel, can be changed -->
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STORZEN GARAGES - Premium Workshop OS</title>
     
-    <!-- Google Fonts: Outfit for that modern SaaS look -->
+    <!-- Google Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS (via CDN for local dev) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
                     colors: {
                         brand: {
-                            light: '#f8fafc', // Soft off-white
-                            dark: '#0B0F19',  // Deep midnight black
-                            accent: '#3b82f6' // Subtle blue for focus states
+                            light: '#f8fafc',
+                            dark: '#0B0F19',
+                            accent: '#3b82f6'
                         }
                     },
                     boxShadow: {
-                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.05)',
                         'glass-dark': '0 8px 32px 0 rgba(0, 0, 0, 0.4)',
                     }
                 }
@@ -37,12 +34,18 @@
         }
     </script>
     
+    <!-- Anti-FOUC (Prevents white flash in dark mode on reload) -->
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
+
     <style>
-        /* Custom Utilities for smooth transitions */
-        body { transition: background-color 0.5s ease, color 0.5s ease; }
-        .glass-panel { transition: background-color 0.5s ease, border-color 0.5s ease; }
-        
-        /* Hiding scrollbar but keeping functionality */
+        body { transition: background-color 0.4s ease, color 0.4s ease; }
+        .glass-panel { transition: background-color 0.4s ease, border-color 0.4s ease; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -50,80 +53,65 @@
     </style>
 </head>
 
-<body class="relative min-h-screen w-full overflow-x-hidden bg-brand-light dark:bg-brand-dark text-slate-800 dark:text-slate-200 antialiased font-sans flex items-center justify-center">
+<body class="relative min-h-[100dvh] w-full overflow-x-hidden bg-brand-light dark:bg-brand-dark text-slate-800 dark:text-slate-200 antialiased font-sans flex items-center justify-center">
 
-    <!-- ================= BACKGROUND ABSTRACT BLOBS ================= -->
-    <!-- Light Mode Blobs -->
-    <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-blue-200/40 rounded-full mix-blend-multiply filter blur-[100px] opacity-100 dark:opacity-0 transition-opacity duration-700 pointer-events-none"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-purple-200/40 rounded-full mix-blend-multiply filter blur-[100px] opacity-100 dark:opacity-0 transition-opacity duration-700 pointer-events-none"></div>
+    <!-- BACKGROUND ABSTRACT BLOBS -->
+    <!-- Light Mode -->
+    <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-blue-200/50 rounded-full mix-blend-multiply filter blur-[120px] opacity-100 dark:opacity-0 transition-opacity duration-700 pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-indigo-200/40 rounded-full mix-blend-multiply filter blur-[120px] opacity-100 dark:opacity-0 transition-opacity duration-700 pointer-events-none"></div>
     
-    <!-- Dark Mode Blobs -->
-    <div class="absolute top-[-10%] right-[-5%] w-[45vw] h-[45vw] bg-blue-900/30 rounded-full mix-blend-screen filter blur-[120px] opacity-0 dark:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-    <div class="absolute bottom-[-10%] left-[-10%] w-[55vw] h-[55vw] bg-slate-800/50 rounded-full mix-blend-screen filter blur-[120px] opacity-0 dark:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+    <!-- Dark Mode -->
+    <div class="absolute top-[-10%] right-[-5%] w-[45vw] h-[45vw] bg-blue-900/40 rounded-full mix-blend-screen filter blur-[130px] opacity-0 dark:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] left-[-10%] w-[55vw] h-[55vw] bg-slate-800/60 rounded-full mix-blend-screen filter blur-[130px] opacity-0 dark:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
-
-    <!-- ================= MAIN GLASS CANVAS ================= -->
-    <main class="relative z-10 w-full max-w-[1400px] min-h-[100dvh] md:min-h-[85vh] p-4 md:p-8 flex flex-col md:flex-row items-center justify-center">
+    <!-- MAIN CONTAINER -->
+    <main class="relative z-10 w-full max-w-[1400px] min-h-[100dvh] md:min-h-[90vh] p-4 md:p-8 flex flex-col md:flex-row items-center justify-center">
         
-        <!-- Outer Glass Bubble -->
-        <div class="glass-panel w-full h-full flex flex-col md:flex-row bg-white/40 dark:bg-[#111827]/40 backdrop-blur-2xl border border-white/50 dark:border-white/10 rounded-[2.5rem] md:rounded-[3rem] shadow-glass dark:shadow-glass-dark overflow-hidden relative">
+        <!-- OUTER GLASS BUBBLE -->
+        <div class="glass-panel w-full max-w-lg md:max-w-none md:h-[80vh] flex flex-col md:flex-row bg-white/50 dark:bg-[#111827]/40 backdrop-blur-2xl border border-white/60 dark:border-white/10 rounded-[2.5rem] md:rounded-[3rem] shadow-glass dark:shadow-glass-dark overflow-hidden relative">
 
-            <!-- Theme Toggle Button (Top Right Absolute) -->
-            <button id="themeToggle" class="absolute top-6 right-6 z-50 p-3 rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-md border border-white/30 dark:border-white/10 hover:bg-white/40 dark:hover:bg-black/40 transition-all duration-300">
-                <!-- Sun Icon (shows in dark mode) -->
-                <svg id="icon-sun" class="w-5 h-5 hidden dark:block text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-                <!-- Moon Icon (shows in light mode) -->
-                <svg id="icon-moon" class="w-5 h-5 block dark:hidden text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                </svg>
+            <!-- Theme Toggle -->
+            <button id="themeToggle" class="absolute top-6 right-6 z-50 p-2.5 rounded-full bg-white/30 dark:bg-black/30 backdrop-blur-md border border-white/40 dark:border-white/10 hover:bg-white/50 dark:hover:bg-black/50 transition-all duration-300">
+                <svg id="icon-sun" class="w-5 h-5 hidden dark:block text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <svg id="icon-moon" class="w-5 h-5 block dark:hidden text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
             </button>
 
-            <!-- ================= LEFT COLUMN: BRAND & VISUAL ================= -->
-            <div class="w-full md:w-[55%] p-8 md:p-14 flex flex-col justify-between relative min-h-[40vh] md:min-h-full">
+            <!-- LEFT COLUMN: BRAND & VISUAL -->
+            <div class="w-full md:w-[55%] p-8 md:p-14 flex flex-col justify-start md:justify-between relative pt-12 md:pt-14">
                 
-                <!-- Brand Logo (Dynamic based on theme) -->
+                <!-- Logos -->
                 <div class="z-20 flex items-center justify-center md:justify-start">
-                    <!-- Light Mode Logo: USE 1000119505.png (Silver/Light Metallic) -->
-                    <img src="assets/logo-light.png" alt="STORZEN" class="h-10 md:h-12 object-contain block dark:hidden">
-                    <!-- Dark Mode Logo: USE 1000119497.png (Dark Metallic) -->
-                    <img src="assets/logo-dark.png" alt="STORZEN" class="h-10 md:h-12 object-contain hidden dark:block">
+                    <img src="1000119505_2.png" alt="STORZEN" class="h-10 md:h-12 object-contain block dark:hidden">
+                    <img src="1000119497_2.png" alt="STORZEN" class="h-10 md:h-12 object-contain hidden dark:block">
                 </div>
 
-                <!-- Hero Text (Visible mostly on Desktop) -->
-                <div class="hidden md:block z-20 mt-16 max-w-md">
-                    <h1 class="text-5xl lg:text-6xl font-bold tracking-tight text-slate-800 dark:text-white leading-tight">
+                <!-- Text (Desktop) -->
+                <div class="hidden md:block z-20 mt-12 max-w-md pointer-events-none">
+                    <h1 class="text-5xl lg:text-6xl font-bold tracking-tight text-slate-800 dark:text-white leading-[1.1]">
                         Manage.<br>Track.<br>Grow.
                     </h1>
                     <p class="mt-6 text-lg text-slate-600 dark:text-slate-400 font-light">
-                        The premium glassmorphism garage management OS. Everything you need, zero clutter.
+                        The premium operating system for modern workshops. Built for speed and scale.
                     </p>
                 </div>
 
-                <!-- 3D Car Image Container -->
-                <div class="relative z-10 w-full mt-8 md:mt-0 flex-grow flex items-center justify-center md:absolute md:bottom-[5%] md:right-[-15%] md:w-[115%] pointer-events-none">
+                <!-- Car Images Container -->
+                <div class="relative z-10 w-full mt-6 md:mt-0 flex items-center justify-center md:absolute md:bottom-[-2%] md:right-[-12%] md:w-[110%] pointer-events-none">
+                    <!-- Mobile Cars -->
+                    <img src="1000119154.png" alt="Car" class="w-[90%] sm:w-[75%] object-contain block dark:hidden md:hidden drop-shadow-2xl">
+                    <img src="1000119156.png" alt="Car" class="w-[90%] sm:w-[75%] object-contain hidden dark:block md:hidden drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
                     
-                    <!-- MOBILE CARS (Front Angle) -->
-                    <img src="assets/car-mobile-light.png" alt="Car" class="w-[90%] object-contain block dark:hidden md:hidden drop-shadow-2xl hover:scale-105 transition-transform duration-700">
-                    <img src="assets/car-mobile-dark.png" alt="Car" class="w-[90%] object-contain hidden dark:block md:hidden drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:scale-105 transition-transform duration-700">
-                    
-                    <!-- DESKTOP CARS (Side Angle - 1000119244.png & 1000119245.png) -->
-                    <img src="assets/car-desktop-light.png" alt="Car" class="w-full object-contain hidden md:block dark:hidden drop-shadow-2xl hover:translate-x-2 transition-transform duration-700">
-                    <img src="assets/car-desktop-dark.png" alt="Car" class="w-full object-contain hidden md:block dark:hidden md:dark:block drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:translate-x-2 transition-transform duration-700">
+                    <!-- Desktop Cars -->
+                    <img src="1000119244_2.png" alt="Car" class="w-full object-contain hidden md:block dark:hidden drop-shadow-[0_30px_50px_rgba(0,0,0,0.2)]">
+                    <img src="1000119245_2.png" alt="Car" class="w-full object-contain hidden md:block dark:hidden md:dark:block drop-shadow-[0_30px_60px_rgba(0,0,0,0.8)]">
                 </div>
             </div>
 
-
-            <!-- ================= RIGHT COLUMN: INNER LOGIN BUBBLE ================= -->
-            <div class="w-full md:w-[45%] p-6 md:p-12 flex items-center justify-center z-20">
+            <!-- RIGHT COLUMN: LOGIN FORM -->
+            <div class="w-full md:w-[45%] p-6 md:p-12 flex items-center justify-center z-20 mt-[-10px] md:mt-0">
                 
-                <!-- Inner Frosted Glass Card -->
-                <div class="w-full max-w-[420px] bg-white/50 dark:bg-[#000000]/40 backdrop-blur-2xl border border-white/60 dark:border-white/10 rounded-[2rem] p-8 md:p-10 shadow-xl relative overflow-hidden">
+                <div class="w-full max-w-[400px] bg-white/60 dark:bg-[#050505]/40 backdrop-blur-xl border border-white/80 dark:border-white/10 rounded-[2rem] p-8 md:p-10 shadow-2xl relative">
                     
-                    <!-- Inner subtle glow effect for the card -->
-                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:from-white/5 dark:to-transparent pointer-events-none"></div>
-
                     <div class="relative z-10 text-center mb-8">
                         <h2 class="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">Welcome Back</h2>
                         <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Sign in to your workspace</p>
@@ -131,65 +119,56 @@
 
                     <form id="loginForm" class="relative z-10 space-y-5">
                         
-                        <!-- Email Input -->
+                        <!-- Email -->
                         <div class="space-y-1.5">
                             <label class="text-sm font-medium pl-2 text-slate-700 dark:text-slate-300">Email Address</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                    </svg>
+                                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                                 </div>
-                                <input type="email" placeholder="you@garage.com" class="w-full pl-11 pr-4 py-3.5 bg-white/40 dark:bg-black/30 backdrop-blur-md border border-white/50 dark:border-white/10 rounded-2xl text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/50 focus:bg-white/60 dark:focus:bg-black/50 transition-all">
+                                <input type="email" placeholder="owner@garage.com" class="w-full pl-11 pr-4 py-3.5 bg-white/50 dark:bg-black/40 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-2xl text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600 transition-all">
                             </div>
                         </div>
 
-                        <!-- Password Input -->
+                        <!-- Password -->
                         <div class="space-y-1.5">
                             <label class="text-sm font-medium pl-2 text-slate-700 dark:text-slate-300">Password</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                    </svg>
+                                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                                 </div>
-                                <input type="password" id="passwordInput" placeholder="••••••••" class="w-full pl-11 pr-12 py-3.5 bg-white/40 dark:bg-black/30 backdrop-blur-md border border-white/50 dark:border-white/10 rounded-2xl text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/50 focus:bg-white/60 dark:focus:bg-black/50 transition-all">
+                                <input type="password" id="passwordInput" placeholder="••••••••" class="w-full pl-11 pr-12 py-3.5 bg-white/50 dark:bg-black/40 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-2xl text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600 transition-all">
                                 <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Remember Me & Forgot Password -->
+                        <!-- Utilities -->
                         <div class="flex items-center justify-between px-1 pt-1">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brand-accent focus:ring-brand-accent/50 bg-white/40 dark:bg-black/40">
+                                <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-slate-800 focus:ring-slate-800 dark:focus:ring-white bg-white/50 dark:bg-black/50">
                                 <span class="text-sm text-slate-600 dark:text-slate-400">Remember me</span>
                             </label>
                             <a href="#" class="text-sm font-semibold text-slate-800 dark:text-white hover:underline decoration-2 underline-offset-4">Forgot password?</a>
                         </div>
 
-                        <!-- Sign In Button -->
-                        <button type="submit" class="w-full py-3.5 mt-4 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-black font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2 group">
+                        <!-- Submit -->
+                        <button type="submit" class="w-full py-3.5 mt-4 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-black font-semibold rounded-2xl shadow-lg transition-all flex justify-center items-center gap-2 group">
                             Sign In
-                            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
+                            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
                     </form>
 
-                    <!-- Divider -->
-                    <div class="relative z-10 flex items-center my-8">
-                        <div class="flex-grow border-t border-slate-300/50 dark:border-slate-700/50"></div>
-                        <span class="px-4 text-xs font-medium text-slate-400 tracking-wider">OR</span>
-                        <div class="flex-grow border-t border-slate-300/50 dark:border-slate-700/50"></div>
+                    <!-- OR Divider -->
+                    <div class="relative z-10 flex items-center my-7">
+                        <div class="flex-grow border-t border-slate-300/60 dark:border-slate-700/60"></div>
+                        <span class="px-4 text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">OR</span>
+                        <div class="flex-grow border-t border-slate-300/60 dark:border-slate-700/60"></div>
                     </div>
 
-                    <!-- Google Login Button (Glass style) -->
-                    <button id="googleLoginBtn" class="relative z-10 w-full py-3.5 bg-white/60 dark:bg-[#1a1a1a]/60 backdrop-blur-md border border-white/80 dark:border-white/10 hover:bg-white/80 dark:hover:bg-[#222]/80 text-slate-700 dark:text-slate-200 font-semibold rounded-2xl shadow-sm transition-all flex items-center justify-center gap-3">
+                    <!-- Google Auth -->
+                    <button id="googleLoginBtn" class="relative z-10 w-full py-3.5 bg-white/70 dark:bg-[#1a1a1a]/60 backdrop-blur-md border border-white/80 dark:border-white/10 hover:bg-white/90 dark:hover:bg-[#222]/80 text-slate-700 dark:text-slate-200 font-semibold rounded-2xl shadow-sm transition-all flex items-center justify-center gap-3">
                         <svg class="w-5 h-5" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -199,8 +178,8 @@
                         Continue with Google
                     </button>
 
-                    <!-- Create Account Link -->
-                    <div class="relative z-10 text-center mt-8">
+                    <!-- Sign Up -->
+                    <div class="relative z-10 text-center mt-7">
                         <p class="text-sm text-slate-500 dark:text-slate-400">
                             New to STORZEN? 
                             <a href="#" class="font-semibold text-slate-800 dark:text-white hover:underline decoration-2 underline-offset-4 ml-1">Create an account &rarr;</a>
@@ -208,58 +187,28 @@
                     </div>
 
                 </div>
-                <!-- End Inner Glass Card -->
-
             </div>
-            <!-- End Right Column -->
-
         </div>
-        <!-- End Outer Glass Bubble -->
-
-        <!-- Mobile Bottom Feature Icons (Optional, mostly hidden on large desktop layout to keep it clean) -->
-        <div class="w-full flex justify-around mt-6 md:hidden">
-            <!-- Icons would go here if needed as per screenshot, but glass bubble covers the core need -->
-        </div>
-
     </main>
 
-    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <!-- JS LOGIC -->
     <script>
-        // 1. Password Visibility Toggle
+        // Password Toggle
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('passwordInput');
-
-        togglePassword.addEventListener('click', function (e) {
+        togglePassword.addEventListener('click', () => {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            // Can optionally toggle the SVG icon here (eye / eye-slash)
         });
 
-        // 2. Dark/Light Mode Toggle Logic
+        // Theme Toggle
         const themeToggleBtn = document.getElementById('themeToggle');
         const htmlElement = document.documentElement;
-
-        // Check local storage for theme preference on load
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            htmlElement.classList.add('dark');
-        } else {
-            htmlElement.classList.remove('dark');
-        }
-
-        // Toggle Event
+        
         themeToggleBtn.addEventListener('click', () => {
             htmlElement.classList.toggle('dark');
-            
-            // Save preference to localStorage
-            if (htmlElement.classList.contains('dark')) {
-                localStorage.theme = 'dark';
-            } else {
-                localStorage.theme = 'light';
-            }
+            localStorage.theme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
         });
     </script>
-    
-    <!-- Next step: Connect Firebase Auth in auth.js -->
-    <!-- <script type="module" src="js/auth.js"></script> -->
 </body>
 </html>
