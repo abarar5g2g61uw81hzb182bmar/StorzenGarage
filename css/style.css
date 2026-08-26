@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Outfit', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+}
+
+/* Perfect Glassmorphism - Overlapping Effect */
+.glass-card {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    transition: all 0.3s ease;
+}
+
+/* Light Mode Glass */
+.glass-light {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Mode Glass */
+.dark .glass-dark {
+    background: rgba(20, 20, 25, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Glass Inputs */
+.glass-input {
+    transition: all 0.2s ease;
+    outline: none;
+}
+.glass-input:focus {
+    border-color: rgba(15, 23, 42, 0.5);
+    background: rgba(255, 255, 255, 0.8);
+}
+.dark .glass-input:focus {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* Custom Checkbox */
+input[type="checkbox"] {
+    accent-color: #0f172a;
+}
+.dark input[type="checkbox"] {
+    accent-color: #ffffff;
+}
+
+/* Hide Scrollbar */
+::-webkit-scrollbar { display: none; }
