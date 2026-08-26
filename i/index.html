@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>STORZEN GARAGES</title>
+    
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: { light: '#ffffff', dark: '#050505' }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Anti-FOUC (Theme persistence) -->
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
+
+    <style>
+        /* Smooth theme transitions */
+        body { transition: background-color 0.3s ease, color 0.3s ease; }
+        
+        /* Ultra Liquid Glass Effect */
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .dark .liquid-glass {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Hide scrollbar completely for app feel */
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+
+<body class="relative min-h-[100dvh] w-full bg-brand-light dark:bg-brand-dark text-black dark:text-white antialiased font-sans overflow-x-hidden flex items-center justify-center">
+
+    <!-- SUBTLE BACKGROUND GLOW (Helps the liquid glass pop) -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-black/5 dark:bg-white/5 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-black/5 dark:bg-white/5 rounded-full blur-[100px]"></div>
+    </div>
+
+    <!-- Theme Toggle (Strictly Black/White) -->
+    <button id="themeToggle" class="absolute top-6 right-6 z-50 p-3 rounded-full liquid-glass transition-transform hover:scale-110">
+        <!-- Sun (Visible in Dark Mode -> Colored White) -->
+        <svg id="icon-sun" class="w-5 h-5 hidden dark:block text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        <!-- Moon (Visible in Light Mode -> Colored Black) -->
+        <svg id="icon-moon" class="w-5 h-5 block dark:hidden text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+    </button>
+
+    <!-- MAIN WRAPPER -->
+    <main class="relative z-10 w-full max-w-[1400px] min-h-[100dvh] flex flex-col lg:flex-row items-center justify-between p-6 lg:p-12">
+        
+        <!-- ================= MOBILE VIEW (Stacks Vertically) ================= -->
+        
+        <!-- Top: Logo (Mobile & Desktop) -->
+        <div class="w-full lg:w-[50%] flex flex-col items-center lg:items-start justify-start pt-10 lg:pt-0 z-20">
+            <img src="1000119505_2.png" alt="STORZEN" class="h-10 sm:h-12 object-contain block dark:hidden mb-10 lg:mb-16">
+            <img src="1000119497_2.png" alt="STORZEN" class="h-10 sm:h-12 object-contain hidden dark:block mb-10 lg:mb-16">
+            
+            <!-- Desktop Text -->
+            <div class="hidden lg:block max-w-md pointer-events-none">
+                <h1 class="text-6xl font-bold tracking-tight leading-[1.1]">Manage.<br>Track.<br>Grow.</h1>
+                <p class="mt-6 text-lg font-light opacity-60">The premium operating system for modern workshops.</p>
+            </div>
+        </div>
+
+        <!-- Middle: Liquid Glass Form -->
+        <div class="w-full lg:w-[40%] flex items-center justify-center z-30">
+            <div class="w-full max-w-[420px] liquid-glass rounded-[2rem] p-8 sm:p-10 relative">
+                
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold">Welcome Back</h2>
+                    <p class="text-sm opacity-60 mt-2">Sign in to your workspace</p>
+                </div>
+
+                <form id="loginForm" class="space-y-5">
+                    
+                    <!-- Email -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium pl-1 opacity-80">Email Address</label>
+                        <input type="email" id="emailInput" placeholder="owner@garage.com" class="w-full px-4 py-3.5 liquid-glass rounded-xl placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all">
+                    </div>
+
+                    <!-- Password -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium pl-1 opacity-80">Password</label>
+                        <div class="relative">
+                            <input type="password" id="passwordInput" placeholder="••••••••" class="w-full pl-4 pr-12 py-3.5 liquid-glass rounded-xl placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all">
+                            <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-4 flex items-center opacity-50 hover:opacity-100">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Utils -->
+                    <div class="flex items-center justify-between pt-1">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" class="w-4 h-4 rounded border-gray-400 bg-transparent">
+                            <span class="text-sm opacity-80">Remember me</span>
+                        </label>
+                        <!-- Added ID for JS functionality -->
+                        <a href="javascript:void(0);" id="forgotPasswordBtn" class="text-sm font-semibold hover:underline underline-offset-4">Forgot password?</a>
+                    </div>
+
+                    <!-- Login Button -->
+                    <button type="submit" id="signInBtn" class="w-full py-3.5 mt-4 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-xl shadow-lg hover:scale-[1.02] transition-transform flex justify-center items-center gap-2">
+                        Sign In
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="flex items-center my-6 opacity-30">
+                    <div class="flex-grow border-t border-current"></div>
+                    <span class="px-3 text-xs tracking-widest">OR</span>
+                    <div class="flex-grow border-t border-current"></div>
+                </div>
+
+                <!-- Google Auth Button -->
+                <button type="button" id="googleLoginBtn" class="w-full py-3.5 liquid-glass font-semibold rounded-xl hover:scale-[1.02] transition-transform flex items-center justify-center gap-3">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continue with Google
+                </button>
+
+                <!-- Create Account Link -->
+                <div class="text-center mt-6">
+                    <p class="text-sm opacity-80">
+                        New to STORZEN? 
+                        <a href="javascript:void(0);" id="createAccountBtn" class="font-semibold hover:underline underline-offset-4 ml-1">Create an account</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= CARS (Positioned behind form slightly on mobile) ================= -->
+        <div class="w-full absolute bottom-[-5%] left-0 flex justify-center lg:static lg:w-auto lg:block z-10 pointer-events-none">
+            
+            <!-- Mobile Cars (Visible only on small screens) -->
+            <img src="1000119154.png" alt="Car" class="w-[110%] max-w-[500px] object-contain block dark:hidden lg:hidden drop-shadow-2xl opacity-90">
+            <img src="1000119156.png" alt="Car" class="w-[110%] max-w-[500px] object-contain hidden dark:block lg:hidden drop-shadow-2xl opacity-90">
+            
+            <!-- Desktop Cars (Visible only on large screens, positioned to the left) -->
+            <div class="hidden lg:block absolute bottom-[-5%] left-[-15%] w-[65vw]">
+                <img src="1000119244_2.png" alt="Car" class="w-full object-contain block dark:hidden drop-shadow-2xl">
+                <img src="1000119245_2.png" alt="Car" class="w-full object-contain hidden dark:block drop-shadow-2xl">
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JS LOGIC -->
+    <script>
+        // Password Toggle Logic
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('passwordInput');
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+        });
+
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+        
+        themeToggleBtn.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            localStorage.theme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
+        });
+    </script>
+</body>
+</html>
