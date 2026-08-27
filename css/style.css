@@ -3,172 +3,159 @@
 :root {
     --bg-img-mobile: url('../bright-mobile.wo.png');
     --bg-img-desktop: url('../bright-desktop.wo.png');
-    
     --glass-bg: rgba(255, 255, 255, 0.25);
     --glass-border: rgba(255, 255, 255, 0.5);
     --glass-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    
     --text-main: #1a1a2e;
     --text-muted: #4a5568;
-    
     --input-bg: rgba(255, 255, 255, 0.4);
     --input-border: rgba(0, 0, 0, 0.1);
-    
     --btn-bg: #111;
     --btn-text: #fff;
+    --btn-secondary: rgba(255,255,255,0.3);
 }
 
 body.dark-theme {
     --bg-img-mobile: url('../dark-mobile.wo.png');
     --bg-img-desktop: url('../dark-desktop.wo.png');
-    
     --glass-bg: rgba(10, 10, 15, 0.4);
     --glass-border: rgba(255, 255, 255, 0.08);
     --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
-    
     --text-main: #ffffff;
     --text-muted: #a0aec0;
-    
     --input-bg: rgba(0, 0, 0, 0.4);
     --input-border: rgba(255, 255, 255, 0.1);
-    
     --btn-bg: #fff;
     --btn-text: #000;
+    --btn-secondary: rgba(0,0,0,0.4);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Outfit', sans-serif;
-    color: var(--text-main);
-    min-height: 100vh;
-    overflow: hidden;
-    background-image: var(--bg-img-mobile);
-    background-size: cover;
+    font-family: 'Outfit', sans-serif; color: var(--text-main);
+    min-height: 100vh; overflow: hidden;
+    background-image: var(--bg-img-mobile); background-size: cover;
     background-position: center;
     transition: background-image 0.6s ease-in-out, color 0.4s ease;
 }
 
-@media (min-width: 768px) {
-    body { background-image: var(--bg-img-desktop); }
-}
+@media (min-width: 768px) { body { background-image: var(--bg-img-desktop); } }
 
-/* Breathing Background Overlay (GPU Optimized) */
 .ambient-breath {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.3);
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3);
     pointer-events: none; z-index: 1;
     animation: breath 8s infinite alternate ease-in-out;
 }
 .dark-theme .ambient-breath { background: rgba(0, 0, 0, 0.5); }
-@keyframes breath {
-    0% { opacity: 0; }
-    100% { opacity: 0.6; }
-}
+@keyframes breath { 0% { opacity: 0; } 100% { opacity: 0.6; } }
 
-/* --- Loader Overlay --- */
+/* Garage Glass Loader */
 .loader-overlay {
     position: fixed; inset: 0; z-index: 999;
-    background: var(--glass-bg);
-    backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+    background: var(--glass-bg); backdrop-filter: blur(25px);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     transition: opacity 0.6s ease, visibility 0.6s ease;
 }
 .loader-overlay.hidden { opacity: 0; visibility: hidden; }
 
-.spinner {
-    width: 50px; height: 50px;
-    border: 3px solid var(--glass-border);
-    border-top-color: var(--text-main);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+.garage-loader {
+    width: 60px; height: 60px; border: 2px solid var(--glass-border);
+    border-radius: 8px; position: relative; overflow: hidden;
+    box-shadow: 0 0 20px rgba(255,255,255,0.1);
 }
-@keyframes spin { 100% { transform: rotate(360deg); } }
+.shutter {
+    width: 100%; height: 10px; background: var(--text-main);
+    position: absolute; top: 0; left: 0;
+    animation: shutterRoll 1.5s infinite alternate ease-in-out;
+}
+@keyframes shutterRoll { 0% { height: 10px; } 100% { height: 100%; } }
+.loader-text { margin-top: 20px; font-weight: 700; letter-spacing: 2px; font-size: 0.8rem; }
 
-/* Main App Wrapper (For blur effect during load) */
+/* Main App Wrapper */
 .app-wrapper {
-    position: relative; z-index: 10;
-    display: flex; flex-direction: column; min-height: 100vh;
-    padding: 1.5rem;
-    transition: filter 0.6s ease;
+    position: relative; z-index: 10; display: flex; flex-direction: column;
+    min-height: 100vh; padding: 1.5rem; transition: filter 0.6s ease;
 }
 .app-wrapper.loading { filter: blur(15px); pointer-events: none; }
 
-/* Header & Toggle */
-.header { display: flex; justify-content: space-between; align-items: center; width: 100%; z-index: 20; }
+.header { display: flex; justify-content: space-between; align-items: center; z-index: 20; }
 .logo img { height: 40px; object-fit: contain; }
 .theme-toggle {
     background: var(--glass-bg); border: 1px solid var(--glass-border);
     backdrop-filter: blur(10px); border-radius: 50%;
     width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--text-main); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer; color: var(--text-main); transition: transform 0.3s;
 }
-.theme-toggle:hover { transform: scale(1.1); }
 
-/* --- 3D Glass Container --- */
 .main-content {
     flex: 1; display: flex; align-items: center; justify-content: center;
-    perspective: 1200px; /* Crucial for 3D effect */
+    perspective: 1200px;
 }
 @media (min-width: 768px) { .main-content { justify-content: flex-start; padding-left: 8%; } }
 
 .glass-panel {
-    background: var(--glass-bg);
-    backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    border-radius: 28px; padding: 2.5rem;
-    width: 100%; max-width: 420px;
-    transform-style: preserve-3d;
-    transition: transform 0.1s ease-out, background 0.4s ease, border 0.4s ease;
-    will-change: transform;
+    background: var(--glass-bg); backdrop-filter: blur(24px) saturate(150%);
+    border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+    border-radius: 28px; padding: 2.5rem; width: 100%; max-width: 420px;
+    transform-style: preserve-3d; transition: transform 0.1s ease-out, background 0.4s ease;
+    will-change: transform; overflow: hidden; position: relative; min-height: 250px;
 }
 
-/* --- Segmented Control (Login / Signup) --- */
-.auth-tabs {
-    display: flex; background: var(--input-bg);
-    border-radius: 100px; padding: 5px; margin-bottom: 2rem;
-    position: relative; border: 1px solid var(--glass-border);
+/* Wizard Steps & Onboarding Slides */
+.wizard-step, .onboard-slide {
+    display: none; opacity: 0; transition: opacity 0.4s ease;
 }
-.tab-btn {
-    flex: 1; padding: 10px; border: none; background: transparent;
-    color: var(--text-muted); font-weight: 600; font-family: inherit;
-    cursor: pointer; position: relative; z-index: 2; transition: color 0.3s ease;
+.wizard-step.active, .onboard-slide.active {
+    display: block; opacity: 1; animation: slideUpFade 0.5s forwards;
 }
-.tab-btn.active { color: var(--btn-text); }
-.tab-slider {
-    position: absolute; top: 5px; left: 5px; height: calc(100% - 10px); width: calc(50% - 5px);
-    background: var(--btn-bg); border-radius: 100px; z-index: 1;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
+@keyframes slideUpFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Forms */
-.auth-form { display: none; opacity: 0; transition: opacity 0.4s ease; }
-.auth-form.active { display: block; opacity: 1; animation: fadeIn 0.4s forwards; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.typewriter-text { font-size: 1.5rem; font-weight: 600; min-height: 80px; }
+.decision-buttons { display: flex; gap: 10px; margin-top: 20px; }
+.hidden-fade { opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+.hidden-fade.show { opacity: 1; pointer-events: auto; }
 
-/* Inputs & Buttons */
-.input-group { margin-bottom: 1.2rem; position: relative; transform: translateZ(20px); }
+/* Inputs */
+.mt-2 { margin-top: 1rem; }
+.input-group { margin-bottom: 1.2rem; }
 .glass-input {
-    width: 100%; padding: 16px 45px;
-    background: var(--input-bg); border: 1px solid var(--input-border);
-    border-radius: 16px; color: var(--text-main); font-family: inherit; font-size: 0.95rem;
+    width: 100%; padding: 16px; background: var(--input-bg);
+    border: 1px solid var(--input-border); border-radius: 12px;
+    color: var(--text-main); font-family: inherit; font-size: 1rem;
     outline: none; transition: all 0.3s ease;
 }
 .glass-input:focus { border-color: var(--text-main); background: var(--glass-bg); }
-.input-icon { position: absolute; top: 16px; left: 16px; width: 20px; height: 20px; opacity: 0.6; }
 
-.btn-primary {
-    width: 100%; padding: 16px; margin-top: 10px;
-    background: var(--btn-bg); color: var(--btn-text);
-    border: none; border-radius: 16px;
-    font-weight: 700; font-size: 1rem; font-family: inherit; cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    transform: translateZ(30px);
+/* Domain Specific Input */
+.domain-input-group { display: flex; align-items: center; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; overflow: hidden; margin-bottom: 1.2rem;}
+.domain-field { border: none; background: transparent; padding: 16px; width: 50%; outline: none; color: var(--text-main); font-family: inherit; font-size: 1rem;}
+.domain-suffix { padding: 16px 16px 16px 0; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; white-space: nowrap;}
+
+/* Buttons */
+.btn-primary, .btn-secondary {
+    flex: 1; padding: 16px; border: none; border-radius: 12px;
+    font-weight: 600; font-size: 1rem; cursor: pointer; transition: transform 0.3s ease;
 }
-.btn-primary:hover { transform: translateZ(35px) scale(1.02); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+.btn-primary { background: var(--btn-bg); color: var(--btn-text); width: 100%; margin-top: 10px;}
+.btn-secondary { background: var(--btn-secondary); color: var(--text-main); border: 1px solid var(--glass-border);}
+.btn-primary:hover, .btn-secondary:hover { transform: translateY(-2px); }
 
-/* BMW Click Zones */
+/* Pricing Card */
+.pricing-card {
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 16px; padding: 20px; text-align: center; margin-top: 20px;
+    position: relative;
+}
+.plan-tag {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--text-main); color: var(--btn-text);
+    padding: 4px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 700;
+}
+.pricing-card h3 { font-size: 1.8rem; margin: 10px 0 5px; }
+.yearly-toggle { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; font-size: 0.85rem; cursor: pointer;}
+
+/* Headlights */
 .headlight-zone { position: absolute; cursor: pointer; z-index: 5; }
 .headlight-mobile { bottom: 22%; left: 15%; width: 70%; height: 12%; }
 @media (min-width: 768px) {
