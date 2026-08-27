@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STORZEN GARAGES</title>
+    <title>STORZEN GARAGES - OS</title>
     <link rel="stylesheet" href="css/style.css">
-    <script>if(localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');</script>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
+    </script>
 </head>
 <body>
     <div class="ambient-breath"></div>
 
-    <!-- Blur Loader -->
+    <!-- Unique Garage Glass Loader -->
     <div id="loader" class="loader-overlay">
-        <div class="spinner"></div>
-        <p style="margin-top: 15px; font-weight: 600; letter-spacing: 1px;">INITIALIZING OS...</p>
+        <div class="garage-loader">
+            <div class="shutter"></div>
+        </div>
+        <p class="loader-text">INITIALIZING WORKSPACE...</p>
     </div>
 
     <!-- Clickable Headlights -->
@@ -35,46 +39,110 @@
         <main class="main-content">
             <div class="glass-panel" id="tiltCard">
                 
-                <!-- Login/Signup Toggle -->
-                <div class="auth-tabs">
-                    <div class="tab-slider" id="tabSlider"></div>
-                    <button class="tab-btn active" id="tabLogin">LOGIN</button>
-                    <button class="tab-btn" id="tabSignup">SIGNUP</button>
+                <!-- STEP 0: INITIAL PROMPT -->
+                <div id="step-0" class="wizard-step active">
+                    <h2 id="typewriterText" class="typewriter-text"></h2>
+                    <div class="decision-buttons hidden-fade" id="decisionButtons">
+                        <button class="btn-primary" id="btnYes">Yes, Sign In</button>
+                        <button class="btn-secondary" id="btnNo">No, Create Account</button>
+                    </div>
                 </div>
 
-                <!-- LOGIN FORM -->
-                <form id="signInForm" class="auth-form active">
+                <!-- LOGIN FLOW (If YES) -->
+                <form id="signInForm" class="wizard-step">
+                    <h2>Welcome Back</h2>
+                    <p class="subtitle">Access your workspace</p>
                     <div class="input-group">
-                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                        <input type="email" id="loginEmail" class="glass-input" required placeholder="Email">
+                        <input type="email" id="loginEmail" class="glass-input" required placeholder="Email Address">
                     </div>
                     <div class="input-group">
-                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                         <input type="password" id="loginPass" class="glass-input" required placeholder="Password">
                     </div>
                     <button type="submit" class="btn-primary">Sign In &rarr;</button>
                 </form>
 
-                <!-- SIGNUP FORM -->
-                <form id="signUpForm" class="auth-form">
-                    <div class="input-group">
-                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                        <input type="text" id="signupName" class="glass-input" required placeholder="Garage Name">
+                <!-- ONBOARDING FLOW (If NO) -->
+                <form id="signUpWizard" class="wizard-step">
+                    
+                    <!-- Q1: Name -->
+                    <div class="onboard-slide active" id="slide-name">
+                        <h2>Hello, What's Your Name?</h2>
+                        <div class="input-group mt-2">
+                            <input type="text" id="regName" class="glass-input" placeholder="e.g. Abrar" required>
+                        </div>
+                        <button type="button" class="btn-primary next-btn">Continue &rarr;</button>
                     </div>
-                    <div class="input-group">
-                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                        <input type="email" id="signupEmail" class="glass-input" required placeholder="Email">
+
+                    <!-- Q2: Domain -->
+                    <div class="onboard-slide" id="slide-domain">
+                        <h2>What domain do you want?</h2>
+                        <p class="subtitle">Your dedicated workspace URL</p>
+                        <div class="domain-input-group mt-2">
+                            <input type="text" id="regDomain" class="glass-input domain-field" placeholder="yourname" required>
+                            <span class="domain-suffix">.garages.storzen.io</span>
+                        </div>
+                        <button type="button" class="btn-primary next-btn">Continue &rarr;</button>
                     </div>
-                    <div class="input-group">
-                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        <input type="password" id="signupPass" class="glass-input" required placeholder="Create Password">
+
+                    <!-- Q3: Garage Name & City -->
+                    <div class="onboard-slide" id="slide-garage">
+                        <h2>Tell us about your business</h2>
+                        <div class="input-group mt-2">
+                            <input type="text" id="regGarageName" class="glass-input" placeholder="Garage Name" required>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="regCity" class="glass-input" placeholder="City" required>
+                        </div>
+                        <button type="button" class="btn-primary next-btn">Continue &rarr;</button>
                     </div>
-                    <button type="submit" class="btn-primary">Create Account</button>
+
+                    <!-- Q4: Contact Details & Password -->
+                    <div class="onboard-slide" id="slide-contact">
+                        <h2>Secure your account</h2>
+                        <div class="input-group mt-2">
+                            <input type="email" id="regEmail" class="glass-input" placeholder="Email Address" required>
+                        </div>
+                        <div class="input-group">
+                            <input type="tel" id="regPhone" class="glass-input" placeholder="Mobile Number" required>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="regPassword" class="glass-input" placeholder="Create Password" required>
+                        </div>
+                        <button type="button" class="btn-primary next-btn" id="sendOtpBtn">Send Email OTP &rarr;</button>
+                    </div>
+
+                    <!-- Q5: OTP Verification -->
+                    <div class="onboard-slide" id="slide-otp">
+                        <h2>Verify your email</h2>
+                        <p class="subtitle">Enter the code sent to your email.</p>
+                        <div class="input-group mt-2">
+                            <input type="text" id="regOtp" class="glass-input text-center tracking-[1em]" maxlength="6" placeholder="------" required>
+                        </div>
+                        <button type="button" class="btn-primary next-btn">Verify &rarr;</button>
+                    </div>
+
+                    <!-- Q6: Pricing & Checkout -->
+                    <div class="onboard-slide" id="slide-checkout">
+                        <h2>Choose your plan</h2>
+                        <div class="pricing-card">
+                            <div class="plan-tag">Free 7-Day Trial</div>
+                            <h3>First Month: ₹28</h3>
+                            <p>Then ₹99/month.</p>
+                            <label class="yearly-toggle">
+                                <input type="checkbox" id="yearlyDiscount">
+                                <span>Switch to Yearly (10% Discount)</span>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn-primary mt-4" id="finalCreateBtn">Start Free Trial &rarr;</button>
+                    </div>
+                    
                 </form>
+
             </div>
         </main>
     </div>
 
+    <!-- Scripts will be loaded here -->
     <script type="module" src="js/ui.js"></script>
     <script type="module" src="js/auth.js"></script>
 </body>
