@@ -1,217 +1,178 @@
-/* Import Modern Font */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-/* CSS Variables for Dynamic Themeing */
 :root {
     --bg-img-mobile: url('../bright-mobile.wo.png');
     --bg-img-desktop: url('../bright-desktop.wo.png');
     
     --glass-bg: rgba(255, 255, 255, 0.25);
     --glass-border: rgba(255, 255, 255, 0.5);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    --glass-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     
     --text-main: #1a1a2e;
     --text-muted: #4a5568;
     
-    --input-bg: rgba(255, 255, 255, 0.5);
+    --input-bg: rgba(255, 255, 255, 0.4);
     --input-border: rgba(0, 0, 0, 0.1);
     
     --btn-bg: #111;
     --btn-text: #fff;
-    --btn-hover: #333;
 }
 
 body.dark-theme {
     --bg-img-mobile: url('../dark-mobile.wo.png');
     --bg-img-desktop: url('../dark-desktop.wo.png');
     
-    --glass-bg: rgba(10, 10, 15, 0.45);
+    --glass-bg: rgba(10, 10, 15, 0.4);
     --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+    --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
     
     --text-main: #ffffff;
     --text-muted: #a0aec0;
     
-    --input-bg: rgba(0, 0, 0, 0.5);
+    --input-bg: rgba(0, 0, 0, 0.4);
     --input-border: rgba(255, 255, 255, 0.1);
     
     --btn-bg: #fff;
     --btn-text: #000;
-    --btn-hover: #e2e8f0;
 }
 
-/* Base Reset */
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
     font-family: 'Outfit', sans-serif;
     color: var(--text-main);
     min-height: 100vh;
-    overflow-x: hidden;
-    /* Background Setup */
+    overflow: hidden;
     background-image: var(--bg-img-mobile);
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
-    transition: background-image 0.5s ease, color 0.3s ease;
+    transition: background-image 0.6s ease-in-out, color 0.4s ease;
 }
 
-/* Desktop Background Override */
 @media (min-width: 768px) {
     body { background-image: var(--bg-img-desktop); }
 }
 
-/* --- Layout --- */
-.container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding: 1.5rem;
-    position: relative;
-    z-index: 10;
+/* Breathing Background Overlay (GPU Optimized) */
+.ambient-breath {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.3);
+    pointer-events: none; z-index: 1;
+    animation: breath 8s infinite alternate ease-in-out;
+}
+.dark-theme .ambient-breath { background: rgba(0, 0, 0, 0.5); }
+@keyframes breath {
+    0% { opacity: 0; }
+    100% { opacity: 0.6; }
 }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-
-.logo img {
-    height: 40px;
-    object-fit: contain;
-    transition: opacity 0.3s ease;
-}
-
-.theme-toggle {
+/* --- Loader Overlay --- */
+.loader-overlay {
+    position: fixed; inset: 0; z-index: 999;
     background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(10px);
-    border-radius: 50%;
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--text-main);
-    transition: transform 0.2s ease;
+    backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
 }
-.theme-toggle:hover { transform: scale(1.05); }
+.loader-overlay.hidden { opacity: 0; visibility: hidden; }
 
-/* --- Glassmorphism Form Card --- */
+.spinner {
+    width: 50px; height: 50px;
+    border: 3px solid var(--glass-border);
+    border-top-color: var(--text-main);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* Main App Wrapper (For blur effect during load) */
+.app-wrapper {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column; min-height: 100vh;
+    padding: 1.5rem;
+    transition: filter 0.6s ease;
+}
+.app-wrapper.loading { filter: blur(15px); pointer-events: none; }
+
+/* Header & Toggle */
+.header { display: flex; justify-content: space-between; align-items: center; width: 100%; z-index: 20; }
+.logo img { height: 40px; object-fit: contain; }
+.theme-toggle {
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px); border-radius: 50%;
+    width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text-main); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.theme-toggle:hover { transform: scale(1.1); }
+
+/* --- 3D Glass Container --- */
 .main-content {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    perspective: 1200px; /* Crucial for 3D effect */
 }
-@media (min-width: 768px) {
-    .main-content { justify-content: flex-start; padding-left: 8%; }
-}
+@media (min-width: 768px) { .main-content { justify-content: flex-start; padding-left: 8%; } }
 
 .glass-panel {
     background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px); /* For Safari */
+    backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%);
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
-    border-radius: 24px;
-    padding: 2.5rem;
-    width: 100%;
-    max-width: 420px;
-    transition: all 0.3s ease;
+    border-radius: 28px; padding: 2.5rem;
+    width: 100%; max-width: 420px;
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out, background 0.4s ease, border 0.4s ease;
+    will-change: transform;
 }
 
-.glass-panel h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.2rem; }
-.glass-panel p.subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2rem; }
-
-/* --- Form Elements --- */
-.input-group { margin-bottom: 1.2rem; position: relative; }
-.input-group label {
-    display: block; font-size: 0.8rem; font-weight: 600;
-    margin-bottom: 0.4rem; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 0.5px;
+/* --- Segmented Control (Login / Signup) --- */
+.auth-tabs {
+    display: flex; background: var(--input-bg);
+    border-radius: 100px; padding: 5px; margin-bottom: 2rem;
+    position: relative; border: 1px solid var(--glass-border);
 }
+.tab-btn {
+    flex: 1; padding: 10px; border: none; background: transparent;
+    color: var(--text-muted); font-weight: 600; font-family: inherit;
+    cursor: pointer; position: relative; z-index: 2; transition: color 0.3s ease;
+}
+.tab-btn.active { color: var(--btn-text); }
+.tab-slider {
+    position: absolute; top: 5px; left: 5px; height: calc(100% - 10px); width: calc(50% - 5px);
+    background: var(--btn-bg); border-radius: 100px; z-index: 1;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Forms */
+.auth-form { display: none; opacity: 0; transition: opacity 0.4s ease; }
+.auth-form.active { display: block; opacity: 1; animation: fadeIn 0.4s forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Inputs & Buttons */
+.input-group { margin-bottom: 1.2rem; position: relative; transform: translateZ(20px); }
 .glass-input {
-    width: 100%;
-    padding: 14px 45px;
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 12px;
-    color: var(--text-main);
-    font-family: inherit;
-    font-size: 0.95rem;
-    outline: none;
-    transition: all 0.2s ease;
+    width: 100%; padding: 16px 45px;
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 16px; color: var(--text-main); font-family: inherit; font-size: 0.95rem;
+    outline: none; transition: all 0.3s ease;
 }
 .glass-input:focus { border-color: var(--text-main); background: var(--glass-bg); }
-
-.input-icon {
-    position: absolute; bottom: 14px; left: 15px;
-    width: 20px; height: 20px; opacity: 0.6;
-}
-.eye-icon {
-    position: absolute; bottom: 14px; right: 15px;
-    width: 20px; height: 20px; opacity: 0.6; cursor: pointer;
-}
-
-.utils {
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 0.85rem; margin-bottom: 1.5rem;
-}
-.utils a { color: var(--text-main); text-decoration: none; font-weight: 600; }
-.utils a:hover { text-decoration: underline; }
+.input-icon { position: absolute; top: 16px; left: 16px; width: 20px; height: 20px; opacity: 0.6; }
 
 .btn-primary {
-    width: 100%; padding: 14px;
+    width: 100%; padding: 16px; margin-top: 10px;
     background: var(--btn-bg); color: var(--btn-text);
-    border: none; border-radius: 12px;
-    font-weight: 600; font-size: 1rem; font-family: inherit;
-    cursor: pointer; transition: all 0.2s ease;
+    border: none; border-radius: 16px;
+    font-weight: 700; font-size: 1rem; font-family: inherit; cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform: translateZ(30px);
 }
-.btn-primary:hover { background: var(--btn-hover); transform: translateY(-2px); }
+.btn-primary:hover { transform: translateZ(35px) scale(1.02); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 
-.divider {
-    display: flex; align-items: center; text-align: center; margin: 1.5rem 0;
-    color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
-}
-.divider::before, .divider::after {
-    content: ''; flex: 1; border-bottom: 1px solid var(--glass-border);
-}
-.divider::before { margin-right: .5em; }
-.divider::after { margin-left: .5em; }
-
-.btn-google {
-    width: 100%; padding: 14px;
-    background: var(--glass-bg); border: 1px solid var(--glass-border);
-    color: var(--text-main); font-weight: 600; font-family: inherit; font-size: 0.95rem;
-    border-radius: 12px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    transition: background 0.2s;
-}
-.btn-google:hover { background: var(--input-bg); }
-.btn-google img { width: 20px; }
-
-/* --- Hidden Clickable Zones for BMW Headlights --- */
-.headlight-zone {
-    position: absolute; cursor: pointer; z-index: 5;
-    /* border: 2px solid red; Uncomment to see the clickable areas during setup */
-}
-
-/* Mobile Headlight Position (Bottom Center roughly) */
-.headlight-mobile {
-    bottom: 22%; left: 15%; width: 70%; height: 12%;
-}
-
-/* Desktop Headlight Position (Bottom Right roughly) */
+/* BMW Click Zones */
+.headlight-zone { position: absolute; cursor: pointer; z-index: 5; }
+.headlight-mobile { bottom: 22%; left: 15%; width: 70%; height: 12%; }
 @media (min-width: 768px) {
     .headlight-mobile { display: none; }
-    .headlight-desktop {
-        bottom: 15%; right: 5%; width: 35%; height: 15%;
-        display: block;
-    }
+    .headlight-desktop { bottom: 15%; right: 5%; width: 35%; height: 15%; display: block; }
 }
-@media (max-width: 767px) {
-    .headlight-desktop { display: none; }
-}
+@media (max-width: 767px) { .headlight-desktop { display: none; } }
