@@ -1,53 +1,217 @@
+/* Import Modern Font */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-body {
-    font-family: 'Outfit', sans-serif;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    overflow-x: hidden;
+/* CSS Variables for Dynamic Themeing */
+:root {
+    --bg-img-mobile: url('../bright-mobile.wo.png');
+    --bg-img-desktop: url('../bright-desktop.wo.png');
+    
+    --glass-bg: rgba(255, 255, 255, 0.25);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    
+    --text-main: #1a1a2e;
+    --text-muted: #4a5568;
+    
+    --input-bg: rgba(255, 255, 255, 0.5);
+    --input-border: rgba(0, 0, 0, 0.1);
+    
+    --btn-bg: #111;
+    --btn-text: #fff;
+    --btn-hover: #333;
 }
 
-/* Perfect Glassmorphism - Overlapping Effect */
-.glass-card {
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+body.dark-theme {
+    --bg-img-mobile: url('../dark-mobile.wo.png');
+    --bg-img-desktop: url('../dark-desktop.wo.png');
+    
+    --glass-bg: rgba(10, 10, 15, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+    
+    --text-main: #ffffff;
+    --text-muted: #a0aec0;
+    
+    --input-bg: rgba(0, 0, 0, 0.5);
+    --input-border: rgba(255, 255, 255, 0.1);
+    
+    --btn-bg: #fff;
+    --btn-text: #000;
+    --btn-hover: #e2e8f0;
+}
+
+/* Base Reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+    /* Background Setup */
+    background-image: var(--bg-img-mobile);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    transition: background-image 0.5s ease, color 0.3s ease;
+}
+
+/* Desktop Background Override */
+@media (min-width: 768px) {
+    body { background-image: var(--bg-img-desktop); }
+}
+
+/* --- Layout --- */
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 1.5rem;
+    position: relative;
+    z-index: 10;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo img {
+    height: 40px;
+    object-fit: contain;
+    transition: opacity 0.3s ease;
+}
+
+.theme-toggle {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: transform 0.2s ease;
+}
+.theme-toggle:hover { transform: scale(1.05); }
+
+/* --- Glassmorphism Form Card --- */
+.main-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+@media (min-width: 768px) {
+    .main-content { justify-content: flex-start; padding-left: 8%; }
+}
+
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px); /* For Safari */
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: 24px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
     transition: all 0.3s ease;
 }
 
-/* Light Mode Glass */
-.glass-light {
-    background: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-}
+.glass-panel h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.2rem; }
+.glass-panel p.subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2rem; }
 
-/* Dark Mode Glass */
-.dark .glass-dark {
-    background: rgba(20, 20, 25, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+/* --- Form Elements --- */
+.input-group { margin-bottom: 1.2rem; position: relative; }
+.input-group label {
+    display: block; font-size: 0.8rem; font-weight: 600;
+    margin-bottom: 0.4rem; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
 }
-
-/* Glass Inputs */
 .glass-input {
-    transition: all 0.2s ease;
+    width: 100%;
+    padding: 14px 45px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 12px;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 0.95rem;
     outline: none;
+    transition: all 0.2s ease;
 }
-.glass-input:focus {
-    border-color: rgba(15, 23, 42, 0.5);
-    background: rgba(255, 255, 255, 0.8);
+.glass-input:focus { border-color: var(--text-main); background: var(--glass-bg); }
+
+.input-icon {
+    position: absolute; bottom: 14px; left: 15px;
+    width: 20px; height: 20px; opacity: 0.6;
 }
-.dark .glass-input:focus {
-    border-color: rgba(255, 255, 255, 0.4);
-    background: rgba(0, 0, 0, 0.6);
+.eye-icon {
+    position: absolute; bottom: 14px; right: 15px;
+    width: 20px; height: 20px; opacity: 0.6; cursor: pointer;
 }
 
-/* Custom Checkbox */
-input[type="checkbox"] {
-    accent-color: #0f172a;
+.utils {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.85rem; margin-bottom: 1.5rem;
 }
-.dark input[type="checkbox"] {
-    accent-color: #ffffff;
+.utils a { color: var(--text-main); text-decoration: none; font-weight: 600; }
+.utils a:hover { text-decoration: underline; }
+
+.btn-primary {
+    width: 100%; padding: 14px;
+    background: var(--btn-bg); color: var(--btn-text);
+    border: none; border-radius: 12px;
+    font-weight: 600; font-size: 1rem; font-family: inherit;
+    cursor: pointer; transition: all 0.2s ease;
+}
+.btn-primary:hover { background: var(--btn-hover); transform: translateY(-2px); }
+
+.divider {
+    display: flex; align-items: center; text-align: center; margin: 1.5rem 0;
+    color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+}
+.divider::before, .divider::after {
+    content: ''; flex: 1; border-bottom: 1px solid var(--glass-border);
+}
+.divider::before { margin-right: .5em; }
+.divider::after { margin-left: .5em; }
+
+.btn-google {
+    width: 100%; padding: 14px;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    color: var(--text-main); font-weight: 600; font-family: inherit; font-size: 0.95rem;
+    border-radius: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: background 0.2s;
+}
+.btn-google:hover { background: var(--input-bg); }
+.btn-google img { width: 20px; }
+
+/* --- Hidden Clickable Zones for BMW Headlights --- */
+.headlight-zone {
+    position: absolute; cursor: pointer; z-index: 5;
+    /* border: 2px solid red; Uncomment to see the clickable areas during setup */
 }
 
-/* Hide Scrollbar */
-::-webkit-scrollbar { display: none; }
+/* Mobile Headlight Position (Bottom Center roughly) */
+.headlight-mobile {
+    bottom: 22%; left: 15%; width: 70%; height: 12%;
+}
+
+/* Desktop Headlight Position (Bottom Right roughly) */
+@media (min-width: 768px) {
+    .headlight-mobile { display: none; }
+    .headlight-desktop {
+        bottom: 15%; right: 5%; width: 35%; height: 15%;
+        display: block;
+    }
+}
+@media (max-width: 767px) {
+    .headlight-desktop { display: none; }
+}
