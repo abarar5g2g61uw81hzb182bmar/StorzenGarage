@@ -1,34 +1,37 @@
 import { auth } from './firebase-init.js';
 import { 
     signInWithEmailAndPassword, 
-    GoogleAuthProvider, 
-    signInWithPopup
+    createUserWithEmailAndPassword 
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
-const signInForm = document.getElementById('signInForm');
-const googleAuthBtn = document.getElementById('googleAuthBtn');
-
-signInForm.addEventListener('submit', async (e) => {
+// Login
+document.getElementById('signInForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('emailInput').value.trim();
-    const password = document.getElementById('passwordInput').value;
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPass').value;
 
     try {
         await signInWithEmailAndPassword(auth, email, password);
         alert("Logged in successfully!");
+        // window.location.href = 'dashboard.html';
     } catch (error) {
-        alert("Error: " + error.message);
+        alert("Login Error: " + error.message);
     }
 });
 
-googleAuthBtn.addEventListener('click', async () => {
-    const provider = new GoogleAuthProvider();
+// Sign Up
+document.getElementById('signUpForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPass').value;
+
     try {
-        await signInWithPopup(auth, provider);
-        alert("Google Sign in successful!");
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Here you would normally save the Garage Name to Firestore
+        alert(`Account created for ${name}!`);
+        // window.location.href = 'onboarding.html';
     } catch (error) {
-        if(error.code !== 'auth/popup-closed-by-user') {
-            alert("Google login failed.");
-        }
+        alert("Signup Error: " + error.message);
     }
 });
