@@ -1,12 +1,10 @@
-// ==========================================
-// js/auth.js — Firebase Magic Link & Firestore Setup
-// ==========================================
-
 import { auth, db } from './firebase-init.js';
 import { 
-    sendSignInLinkToEmail, 
-    isSignInWithEmailLink, 
-    signInWithEmailLink 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword,
+    sendEmailVerification,
+    sendPasswordResetEmail,
+    updateProfile
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import { 
     doc, 
@@ -14,7 +12,9 @@ import {
     serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-// --- 1. Custom Liquid Glass Toast Notification ---
+// ==========================================
+// 1. Premium Glass Toast Notification
+// ==========================================
 export function showToast(message, type = 'success') {
     const existing = document.getElementById('glassToast');
     if (existing) existing.remove();
@@ -22,7 +22,6 @@ export function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.id = 'glassToast';
     
-    // Premium Glass Styling
     toast.style.position = 'fixed';
     toast.style.bottom = '35px';
     toast.style.right = '35px';
@@ -44,13 +43,11 @@ export function showToast(message, type = 'success') {
 
     document.body.appendChild(toast);
 
-    // Animate In
     requestAnimationFrame(() => {
         toast.style.transform = 'translateY(0)';
         toast.style.opacity = '1';
     });
 
-    // Auto Remove
     setTimeout(() => {
         toast.style.transform = 'translateY(30px)';
         toast.style.opacity = '0';
@@ -58,8 +55,9 @@ export function showToast(message, type = 'success') {
     }, 4500);
 }
 
-
-// --- 2. LOGIN FLOW (Sending Magic Link) ---
+// ==========================================
+// 2. STANDARD LOGIN FLOW
+// ==========================================
 const signInForm = document.getElementById('signInForm');
 
 if (signInForm) {
@@ -67,94 +65,103 @@ if (signInForm) {
         e.preventDefault();
         
         const email = document.getElementById('loginEmail').value.trim();
-        const submitBtn = document.getElementById('magicLinkBtn');
+        const password = document.getElementById('loginPass').value;
+        const submitBtn = document.getElementById('loginBtn');
         
-        // Button Loading State
         const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = 'Sending Link...';
+        submitBtn.innerHTML = 'Authenticating...';
         submitBtn.style.opacity = '0.6';
         submitBtn.style.pointerEvents = 'none';
 
-        const actionCodeSettings = {
-            // URL must point to your Firebase Hosted domain or localhost during dev
-            url: window.location.origin + window.location.pathname, 
-            handleCodeInApp: true
-        };
-
         try {
-            await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-            // Save email in localStorage so we don't have to ask for it again when they click the link
-            window.localStorage.setItem('emailForSignIn', email);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
             
-            showToast('Magic link sent! Please check your inbox.', 'success');
-            submitBtn.innerHTML = 'Secure Link Sent ✓';
+            // Check if email is verified
+            if (!userCredential.user.emailVerified) {
+                showToast('Please verify your email address before accessing the dashboard.', 'error');
+                auth.signOut();
+                resetButton(submitBtn, originalText);
+                return;
+            }
+
+            showToast('Welcome back! Loading workspace...', 'success');
+            // setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
             
         } catch (error) {
-            submitBtn.innerHTML = originalText;
-            submitBtn.style.opacity = '1';
-            submitBtn.style.pointerEvents = 'auto';
-            showToast('Error: ' + error.message, 'error');
+            resetButton(submitBtn, originalText);
+            let msg = 'Authentication failed. Please check credentials.';
+            if (error.code === 'auth/invalid-credential') msg = 'Invalid email or password.';
+            showToast(msg, 'error');
         }
     });
 }
 
-
-// --- 3. ONBOARDING FLOW (Send Verification / Magic Link during signup) ---
-const sendVerificationBtn = document.getElementById('sendVerificationBtn');
-
-if (sendVerificationBtn) {
-    sendVerificationBtn.addEventListener('click', async (e) => {
-        // Validation handled by ui.js. Here we just trigger the backend send.
-        const email = document.getElementById('regEmail').value.trim();
-        if (!email) return;
-
-        const actionCodeSettings = {
-            url: window.location.origin + window.location.pathname,
-            handleCodeInApp: true
-        };
+// ==========================================
+// 3. FORGOT PASSWORD (MAGIC LINK)
+// ==========================================
+const forgotPassLink = document.getElementById('forgotPassLink');
+if (forgotPassLink) {
+    forgotPassLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const emailInput = document.getElementById('loginEmail');
+        const email = emailInput.value.trim();
+        
+        if (!email) {
+            showToast('Please enter your email address in the field first to reset password.', 'error');
+            emailInput.focus();
+            return;
+        }
 
         try {
-            await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-            window.localStorage.setItem('emailForSignIn', email);
-            showToast(`Verification link sent to ${email}`, 'success');
+            await sendPasswordResetEmail(auth, email);
+            showToast(`Password reset link sent to ${email}. Check your inbox!`, 'success');
         } catch (error) {
-            showToast('Could not send verification: ' + error.message, 'error');
+            let msg = 'Error sending reset link.';
+            if (error.code === 'auth/user-not-found') msg = 'No account found with this email.';
+            showToast(msg, 'error');
         }
     });
 }
 
-
-// --- 4. FINAL WORKSPACE CREATION (Checkout Slide) ---
+// ==========================================
+// 4. ACCOUNT CREATION & VERIFICATION LINK
+// ==========================================
 const signUpWizard = document.getElementById('signUpWizard');
 
 if (signUpWizard) {
     signUpWizard.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Collect all data from the previous slides
         const name = document.getElementById('regName').value.trim();
         const domain = document.getElementById('regDomain').value.trim();
         const garageName = document.getElementById('regGarageName').value.trim();
         const city = document.getElementById('regCity').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const phone = document.getElementById('regPhone').value.trim();
+        const password = document.getElementById('regPassword').value;
         const isYearly = document.getElementById('yearlyDiscount').checked;
         
         const finalBtn = document.getElementById('finalCreateBtn');
+        const originalText = finalBtn.innerHTML;
         
         finalBtn.innerHTML = 'Securing Workspace...';
         finalBtn.style.pointerEvents = 'none';
         finalBtn.style.opacity = '0.6';
 
         try {
-            // Because they use a magic link, the actual user creation in Firebase Auth 
-            // happens when they click the link in their email. 
-            // Here, we preemptively save their setup data to Firestore linked to their email.
-            
-            // Create a safe document ID from their email
-            const safeDocId = email.toLowerCase().replace(/[^a-z0-9]/g, '');
-            
+            // A. Create User in Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // B. Update Profile Name
+            await updateProfile(user, { displayName: name });
+
+            // C. Send Verification Link immediately
+            await sendEmailVerification(user);
+
+            // D. Save Data to Firestore
             const workspaceData = {
+                ownerId: user.uid,
                 ownerName: name,
                 businessInfo: {
                     garageName: garageName,
@@ -168,52 +175,36 @@ if (signUpWizard) {
                 },
                 subscription: {
                     plan: isYearly ? 'yearly' : 'monthly',
-                    status: 'pending_verification',
+                    status: 'trial_pending_verification',
+                    trialExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 
                     firstMonthPrice: 28,
-                    regularPrice: isYearly ? 1069 : 99 // 10% discount math approx
+                    regularPrice: isYearly ? 1069 : 99 
                 },
                 createdAt: serverTimestamp()
             };
 
-            // Write to Firestore
-            await setDoc(doc(db, "pending_workshops", safeDocId), workspaceData);
+            await setDoc(doc(db, "workshops", user.uid), workspaceData);
 
-            showToast('Setup complete! Click the link in your email to login and access your dashboard.', 'success');
+            showToast('Account created! Please check your email to verify your account before logging in.', 'success');
+            
+            // Log them out until they verify
+            await auth.signOut();
+            
             finalBtn.innerHTML = 'Check your Inbox!';
 
         } catch (error) {
-            finalBtn.innerHTML = 'Start Free Trial &rarr;';
-            finalBtn.style.pointerEvents = 'auto';
-            finalBtn.style.opacity = '1';
-            showToast('Error setting up workspace: ' + error.message, 'error');
+            resetButton(finalBtn, originalText);
+            let msg = 'Failed to create account.';
+            if (error.code === 'auth/email-already-in-use') msg = 'This email is already registered.';
+            if (error.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
+            showToast(msg, 'error');
         }
     });
 }
 
-
-// --- 5. HANDLING THE USER CLICKING THE EMAIL LINK ---
-window.addEventListener('DOMContentLoaded', () => {
-    // Check if the current URL contains a Firebase Auth Link
-    if (isSignInWithEmailLink(auth, window.location.href)) {
-        
-        let email = window.localStorage.getItem('emailForSignIn');
-        if (!email) {
-            // If they opened the link on a different device/browser
-            email = window.prompt('Please enter your email to confirm verification:');
-        }
-
-        // Sign the user in
-        signInWithEmailLink(auth, email, window.location.href)
-            .then((result) => {
-                window.localStorage.removeItem('emailForSignIn');
-                
-                showToast('Successfully verified! Logging you in...', 'success');
-                
-                // Route to dashboard
-                // setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
-            })
-            .catch((error) => {
-                showToast('Link expired or invalid. Please request a new one.', 'error');
-            });
-    }
-});
+// Utility function to reset buttons
+function resetButton(btn, text) {
+    btn.innerHTML = text;
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+}
