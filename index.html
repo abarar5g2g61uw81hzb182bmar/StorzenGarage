@@ -12,7 +12,7 @@
 <body>
     <div class="ambient-breath"></div>
 
-    <!-- Unique Garage Glass Loader -->
+    <!-- Premium Garage Loader -->
     <div id="loader" class="loader-overlay">
         <div class="garage-loader">
             <div class="shutter"></div>
@@ -20,48 +20,46 @@
         <p class="loader-text">INITIALIZING WORKSPACE...</p>
     </div>
 
-    <!-- Clickable Headlights -->
+    <!-- BMW Clickable Headlights (Easter Egg) -->
     <div id="headlightTriggerMobile" class="headlight-zone headlight-mobile"></div>
     <div id="headlightTriggerDesktop" class="headlight-zone headlight-desktop"></div>
 
     <div class="app-wrapper loading" id="appWrapper">
         <header class="header">
             <div class="logo">
-                <img src="1000119505_2.png" id="logoLight" style="display: block;">
-                <img src="1000119497_2.png" id="logoDark" style="display: none;">
+                <img src="1000119505_2.png" id="logoLight" alt="Storzen Light" style="display: block;">
+                <img src="1000119497_2.png" id="logoDark" alt="Storzen Dark" style="display: none;">
             </div>
             <button id="themeToggleBtn" class="theme-toggle">
-                <svg id="moonIcon" style="width:20px;height:20px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                <svg id="sunIcon" style="width:20px;height:20px; display:none;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <svg id="moonIcon" class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                <svg id="sunIcon" class="icon" style="display:none;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
             </button>
         </header>
 
         <main class="main-content">
+            <!-- 3D Gyroscope/Mouse Tilt Container -->
             <div class="glass-panel" id="tiltCard">
                 
-                <!-- STEP 0: INITIAL PROMPT -->
+                <!-- STEP 0: TYPEWRITER PROMPT -->
                 <div id="step-0" class="wizard-step active">
-                    <h2 id="typewriterText" class="typewriter-text"></h2>
+                    <h2 id="typewriterText" class="typewriter-text"><span class="cursor"></span></h2>
                     <div class="decision-buttons hidden-fade" id="decisionButtons">
-                        <button class="btn-primary" id="btnYes">Yes</button>
-                        <button class="btn-secondary" id="btnNo">No</button>
+                        <button class="btn-primary" id="btnYes">Yes, Sign In</button>
+                        <button class="btn-secondary" id="btnNo">No, Create Account</button>
                     </div>
                 </div>
 
-                <!-- LOGIN FLOW (If YES) -->
+                <!-- LOGIN FLOW (Magic Link - Email Only) -->
                 <form id="signInForm" class="wizard-step">
                     <h2>Welcome Back</h2>
-                    <p class="subtitle">Access your workspace</p>
-                    <div class="input-group">
-                        <input type="email" id="loginEmail" class="glass-input" required placeholder="Email Address">
+                    <p class="subtitle">Enter your email to receive a secure login link.</p>
+                    <div class="input-group mt-2">
+                        <input type="email" id="loginEmail" class="glass-input" required placeholder="owner@garage.com">
                     </div>
-                    <div class="input-group">
-                        <input type="password" id="loginPass" class="glass-input" required placeholder="Password">
-                    </div>
-                    <button type="submit" class="btn-primary">Sign In &rarr;</button>
+                    <button type="submit" class="btn-primary" id="magicLinkBtn">Send Magic Link &rarr;</button>
                 </form>
 
-                <!-- ONBOARDING FLOW (If NO) -->
+                <!-- ONBOARDING FLOW -->
                 <form id="signUpWizard" class="wizard-step">
                     
                     <!-- Q1: Name -->
@@ -78,7 +76,7 @@
                         <h2>What domain do you want?</h2>
                         <p class="subtitle">Your dedicated workspace URL</p>
                         <div class="domain-input-group mt-2">
-                            <input type="text" id="regDomain" class="glass-input domain-field" placeholder="yourname" required>
+                            <input type="text" id="regDomain" class="domain-field" placeholder="yourname" required>
                             <span class="domain-suffix">.garages.storzen.io</span>
                         </div>
                         <button type="button" class="btn-primary next-btn">Continue &rarr;</button>
@@ -96,32 +94,20 @@
                         <button type="button" class="btn-primary next-btn">Continue &rarr;</button>
                     </div>
 
-                    <!-- Q4: Contact Details & Password -->
+                    <!-- Q4: Contact Details (Magic Link triggers here) -->
                     <div class="onboard-slide" id="slide-contact">
                         <h2>Secure your account</h2>
+                        <p class="subtitle">We use passwordless secure links.</p>
                         <div class="input-group mt-2">
                             <input type="email" id="regEmail" class="glass-input" placeholder="Email Address" required>
                         </div>
                         <div class="input-group">
                             <input type="tel" id="regPhone" class="glass-input" placeholder="Mobile Number" required>
                         </div>
-                        <div class="input-group">
-                            <input type="password" id="regPassword" class="glass-input" placeholder="Create Password" required>
-                        </div>
-                        <button type="button" class="btn-primary next-btn" id="sendOtpBtn">Send Email OTP &rarr;</button>
+                        <button type="button" class="btn-primary next-btn" id="sendVerificationBtn">Verify Email &rarr;</button>
                     </div>
 
-                    <!-- Q5: OTP Verification -->
-                    <div class="onboard-slide" id="slide-otp">
-                        <h2>Verify your email</h2>
-                        <p class="subtitle">Enter the code sent to your email.</p>
-                        <div class="input-group mt-2">
-                            <input type="text" id="regOtp" class="glass-input text-center tracking-[1em]" maxlength="6" placeholder="------" required>
-                        </div>
-                        <button type="button" class="btn-primary next-btn">Verify &rarr;</button>
-                    </div>
-
-                    <!-- Q6: Pricing & Checkout -->
+                    <!-- Q5: Pricing & Checkout -->
                     <div class="onboard-slide" id="slide-checkout">
                         <h2>Choose your plan</h2>
                         <div class="pricing-card">
@@ -137,12 +123,11 @@
                     </div>
                     
                 </form>
-
             </div>
         </main>
     </div>
 
-    <!-- Scripts will be loaded here -->
+    <!-- Script loading -->
     <script type="module" src="js/ui.js"></script>
     <script type="module" src="js/auth.js"></script>
 </body>
