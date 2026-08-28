@@ -1,10 +1,12 @@
-// js/auth.js - Firebase Authentication & Database Storage
+// ==========================================
+// js/auth.js — Firebase Magic Link & Firestore Setup
+// ==========================================
 
 import { auth, db } from './firebase-init.js';
 import { 
-    signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword,
-    updateProfile
+    sendSignInLinkToEmail, 
+    isSignInWithEmailLink, 
+    signInWithEmailLink 
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import { 
     doc, 
@@ -12,31 +14,32 @@ import {
     serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-// --- Custom Glass Toast Notification ---
-function showToast(message, type = 'success') {
+// --- 1. Custom Liquid Glass Toast Notification ---
+export function showToast(message, type = 'success') {
     const existing = document.getElementById('glassToast');
     if (existing) existing.remove();
 
     const toast = document.createElement('div');
     toast.id = 'glassToast';
     
-    // Apply styling based on liquid glass CSS rules
+    // Premium Glass Styling
     toast.style.position = 'fixed';
-    toast.style.bottom = '30px';
-    toast.style.right = '30px';
-    toast.style.padding = '16px 24px';
-    toast.style.borderRadius = '16px';
-    toast.style.background = type === 'error' ? 'rgba(220, 38, 38, 0.2)' : 'var(--glass-bg)';
-    toast.style.backdropFilter = 'blur(20px)';
-    toast.style.border = type === 'error' ? '1px solid rgba(220, 38, 38, 0.4)' : '1px solid var(--glass-border)';
-    toast.style.color = type === 'error' ? '#ff8a8a' : 'var(--text-main)';
+    toast.style.bottom = '35px';
+    toast.style.right = '35px';
+    toast.style.padding = '18px 26px';
+    toast.style.borderRadius = '20px';
+    toast.style.background = type === 'error' ? 'rgba(153, 27, 27, 0.4)' : 'var(--glass-bg)';
+    toast.style.backdropFilter = 'blur(30px)';
+    toast.style.webkitBackdropFilter = 'blur(30px)';
+    toast.style.border = type === 'error' ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid var(--glass-border)';
+    toast.style.color = type === 'error' ? '#fca5a5' : 'var(--text-main)';
     toast.style.boxShadow = 'var(--glass-shadow)';
-    toast.style.zIndex = '9999';
+    toast.style.zIndex = '99999';
     toast.style.fontWeight = '600';
-    toast.style.fontSize = '0.9rem';
-    toast.style.transform = 'translateY(20px)';
+    toast.style.fontSize = '0.95rem';
+    toast.style.transform = 'translateY(30px)';
     toast.style.opacity = '0';
-    toast.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+    toast.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
     toast.innerText = message;
 
     document.body.appendChild(toast);
@@ -49,86 +52,109 @@ function showToast(message, type = 'success') {
 
     // Auto Remove
     setTimeout(() => {
-        toast.style.transform = 'translateY(20px)';
+        toast.style.transform = 'translateY(30px)';
         toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 400);
-    }, 4000);
+        setTimeout(() => toast.remove(), 500);
+    }, 4500);
 }
 
 
-// --- LOGIN LOGIC ---
+// --- 2. LOGIN FLOW (Sending Magic Link) ---
 const signInForm = document.getElementById('signInForm');
+
 if (signInForm) {
     signInForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPass').value;
-        const submitBtn = signInForm.querySelector('button[type="submit"]');
+        const submitBtn = document.getElementById('magicLinkBtn');
+        
+        // Button Loading State
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = 'Sending Link...';
+        submitBtn.style.opacity = '0.6';
+        submitBtn.style.pointerEvents = 'none';
 
-        submitBtn.innerHTML = 'Authenticating...';
-        submitBtn.style.opacity = '0.7';
+        const actionCodeSettings = {
+            // URL must point to your Firebase Hosted domain or localhost during dev
+            url: window.location.origin + window.location.pathname, 
+            handleCodeInApp: true
+        };
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            showToast('Welcome back! Loading workspace...');
+            await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+            // Save email in localStorage so we don't have to ask for it again when they click the link
+            window.localStorage.setItem('emailForSignIn', email);
             
-            // Redirect to dashboard (Uncomment when dashboard is ready)
-            // setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+            showToast('Magic link sent! Please check your inbox.', 'success');
+            submitBtn.innerHTML = 'Secure Link Sent ✓';
             
         } catch (error) {
-            submitBtn.innerHTML = 'Sign In &rarr;';
+            submitBtn.innerHTML = originalText;
             submitBtn.style.opacity = '1';
-            
-            let msg = 'Authentication failed. Please check credentials.';
-            if (error.code === 'auth/invalid-credential') msg = 'Invalid email or password.';
-            if (error.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later.';
-            showToast(msg, 'error');
+            submitBtn.style.pointerEvents = 'auto';
+            showToast('Error: ' + error.message, 'error');
         }
     });
 }
 
 
-// --- FINAL ACCOUNT CREATION LOGIC ---
+// --- 3. ONBOARDING FLOW (Send Verification / Magic Link during signup) ---
+const sendVerificationBtn = document.getElementById('sendVerificationBtn');
+
+if (sendVerificationBtn) {
+    sendVerificationBtn.addEventListener('click', async (e) => {
+        // Validation handled by ui.js. Here we just trigger the backend send.
+        const email = document.getElementById('regEmail').value.trim();
+        if (!email) return;
+
+        const actionCodeSettings = {
+            url: window.location.origin + window.location.pathname,
+            handleCodeInApp: true
+        };
+
+        try {
+            await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+            window.localStorage.setItem('emailForSignIn', email);
+            showToast(`Verification link sent to ${email}`, 'success');
+        } catch (error) {
+            showToast('Could not send verification: ' + error.message, 'error');
+        }
+    });
+}
+
+
+// --- 4. FINAL WORKSPACE CREATION (Checkout Slide) ---
 const signUpWizard = document.getElementById('signUpWizard');
+
 if (signUpWizard) {
     signUpWizard.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // 1. Gather all data from the wizard slides
+        // Collect all data from the previous slides
         const name = document.getElementById('regName').value.trim();
         const domain = document.getElementById('regDomain').value.trim();
         const garageName = document.getElementById('regGarageName').value.trim();
         const city = document.getElementById('regCity').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const phone = document.getElementById('regPhone').value.trim();
-        const password = document.getElementById('regPassword').value;
         const isYearly = document.getElementById('yearlyDiscount').checked;
-        const otpCode = document.getElementById('regOtp').value.trim();
         
         const finalBtn = document.getElementById('finalCreateBtn');
-
-        // Validation check (Mock OTP validation)
-        if (otpCode.length !== 6) {
-            showToast('Please enter a valid 6-digit OTP.', 'error');
-            return;
-        }
-
-        finalBtn.innerHTML = 'Creating Workspace...';
+        
+        finalBtn.innerHTML = 'Securing Workspace...';
         finalBtn.style.pointerEvents = 'none';
-        finalBtn.style.opacity = '0.7';
+        finalBtn.style.opacity = '0.6';
 
         try {
-            // 2. Create Firebase Auth User
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-
-            // 3. Update Auth Profile
-            await updateProfile(user, { displayName: name });
-
-            // 4. Create Master Workshop Document in Firestore
+            // Because they use a magic link, the actual user creation in Firebase Auth 
+            // happens when they click the link in their email. 
+            // Here, we preemptively save their setup data to Firestore linked to their email.
+            
+            // Create a safe document ID from their email
+            const safeDocId = email.toLowerCase().replace(/[^a-z0-9]/g, '');
+            
             const workspaceData = {
-                ownerId: user.uid,
                 ownerName: name,
                 businessInfo: {
                     garageName: garageName,
@@ -142,36 +168,52 @@ if (signUpWizard) {
                 },
                 subscription: {
                     plan: isYearly ? 'yearly' : 'monthly',
-                    status: 'trial',
-                    trialExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-                    nextPaymentAmount: isYearly ? 1069 : 28 // ₹28 first month, or yearly discounted
+                    status: 'pending_verification',
+                    firstMonthPrice: 28,
+                    regularPrice: isYearly ? 1069 : 99 // 10% discount math approx
                 },
-                createdAt: serverTimestamp(),
-                settings: {
-                    taxEnabled: false,
-                    logoBase64: null
-                }
+                createdAt: serverTimestamp()
             };
 
-            // Assuming schema: workshops/{workspaceId}
-            // We use the user's UID as the workspace ID for the MVP to keep relations simple
-            await setDoc(doc(db, "workshops", user.uid), workspaceData);
+            // Write to Firestore
+            await setDoc(doc(db, "pending_workshops", safeDocId), workspaceData);
 
-            showToast('Workspace created successfully! Redirecting...', 'success');
-
-            // 5. Redirect to Dashboard
-            // setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
+            showToast('Setup complete! Click the link in your email to login and access your dashboard.', 'success');
+            finalBtn.innerHTML = 'Check your Inbox!';
 
         } catch (error) {
             finalBtn.innerHTML = 'Start Free Trial &rarr;';
             finalBtn.style.pointerEvents = 'auto';
             finalBtn.style.opacity = '1';
-
-            let msg = 'Failed to create account.';
-            if (error.code === 'auth/email-already-in-use') msg = 'This email is already registered.';
-            if (error.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
-            
-            showToast(msg, 'error');
+            showToast('Error setting up workspace: ' + error.message, 'error');
         }
     });
 }
+
+
+// --- 5. HANDLING THE USER CLICKING THE EMAIL LINK ---
+window.addEventListener('DOMContentLoaded', () => {
+    // Check if the current URL contains a Firebase Auth Link
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+        
+        let email = window.localStorage.getItem('emailForSignIn');
+        if (!email) {
+            // If they opened the link on a different device/browser
+            email = window.prompt('Please enter your email to confirm verification:');
+        }
+
+        // Sign the user in
+        signInWithEmailLink(auth, email, window.location.href)
+            .then((result) => {
+                window.localStorage.removeItem('emailForSignIn');
+                
+                showToast('Successfully verified! Logging you in...', 'success');
+                
+                // Route to dashboard
+                // setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
+            })
+            .catch((error) => {
+                showToast('Link expired or invalid. Please request a new one.', 'error');
+            });
+    }
+});
