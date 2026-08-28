@@ -5,121 +5,177 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>STORZEN GARAGES - OS</title>
     <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Preload Theme -->
     <script>
         if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
     </script>
 </head>
 <body>
+    <!-- Ambient Breathing Background -->
     <div class="ambient-breath"></div>
 
-    <!-- Premium Garage Loader -->
-    <div id="loader" class="loader-overlay">
-        <div class="garage-loader">
-            <div class="shutter"></div>
-        </div>
-        <p class="loader-text">INITIALIZING WORKSPACE...</p>
+    <!-- Dynamic SVG Car Loader (Injected via components/loader.js) -->
+    <div id="loader-container"></div>
+
+    <!-- Hidden Refresh Message (Appears when panel is closed) -->
+    <div id="refreshMessage" class="refresh-msg hidden">
+        <p>Refresh page to show prompt and restart creation of account!</p>
+        <button onclick="window.location.reload()" class="btn-primary mt-2" style="max-width: 200px; margin: 15px auto;">Refresh Now</button>
     </div>
 
-    <!-- BMW Clickable Headlights (Easter Egg) -->
+    <!-- BMW Clickable Headlights (Gyro/Theme Triggers) -->
     <div id="headlightTriggerMobile" class="headlight-zone headlight-mobile"></div>
     <div id="headlightTriggerDesktop" class="headlight-zone headlight-desktop"></div>
 
+    <!-- Main App UI -->
     <div class="app-wrapper loading" id="appWrapper">
+        
+        <!-- Header -->
         <header class="header">
             <div class="logo">
-                <img src="1000119505_2.png" id="logoLight" alt="Storzen Light" style="display: block;">
-                <img src="1000119497_2.png" id="logoDark" alt="Storzen Dark" style="display: none;">
+                <img src="1000119505_2.png" id="logoLight" alt="Storzen" style="display: block;">
+                <img src="1000119497_2.png" id="logoDark" alt="Storzen" style="display: none;">
             </div>
-            <button id="themeToggleBtn" class="theme-toggle">
+            <button id="themeToggleBtn" class="theme-toggle" aria-label="Toggle Theme">
                 <svg id="moonIcon" class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                 <svg id="sunIcon" class="icon" style="display:none;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
             </button>
         </header>
 
         <main class="main-content">
-            <!-- 3D Gyroscope/Mouse Tilt Container -->
+            
+            <!-- 3D Gyroscope Panel -->
             <div class="glass-panel" id="tiltCard">
                 
-                <!-- STEP 0: TYPEWRITER PROMPT -->
+                <!-- Close (Cross) Button -->
+                <button id="closePanelBtn" class="close-btn" aria-label="Close Prompt">&times;</button>
+                
+                <!-- STEP 0: INITIAL YES/NO PROMPT -->
                 <div id="step-0" class="wizard-step active">
-                    <h2 id="typewriterText" class="typewriter-text"><span class="cursor"></span></h2>
-                    <div class="decision-buttons hidden-fade" id="decisionButtons">
-                        <button class="btn-primary" id="btnYes">Yes, Sign In</button>
-                        <button class="btn-secondary" id="btnNo">No, Create Account</button>
+                    <!-- JS will read data-text and type it out here -->
+                    <h2 class="type-target" data-text="Do you already have an account in STORZEN GARAGE?"></h2>
+                    
+                    <!-- Content fades in after typing is done -->
+                    <div class="step-content hidden-fade">
+                        <div class="decision-buttons">
+                            <button class="btn-primary" id="btnYes">Yes</button>
+                            <button class="btn-secondary" id="btnNo">No</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- LOGIN FLOW (Magic Link - Email Only) -->
+                <!-- ================= LOGIN FLOW (If YES) ================= -->
                 <form id="signInForm" class="wizard-step">
-                    <h2>Welcome Back</h2>
-                    <p class="subtitle">Enter your email to receive a secure login link.</p>
-                    <div class="input-group mt-2">
-                        <input type="email" id="loginEmail" class="glass-input" required placeholder="owner@garage.com">
+                    <h2 class="type-target" data-text="Welcome Back. Please authenticate."></h2>
+                    
+                    <div class="step-content hidden-fade">
+                        <div class="input-group mt-2">
+                            <input type="email" id="loginEmail" class="glass-input" required placeholder="Email Address">
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="loginPass" class="glass-input" required placeholder="Password">
+                        </div>
+                        <div class="utils">
+                            <a href="#" id="forgotPassLink" class="text-sm font-semibold hover:underline">Forgot Password?</a>
+                        </div>
+                        
+                        <div class="step-actions mt-2">
+                            <button type="button" class="btn-back" data-target="step-0">&larr;</button>
+                            <button type="submit" class="btn-primary" id="loginBtn">Sign In</button>
+                        </div>
                     </div>
-                    <button type="submit" class="btn-primary" id="magicLinkBtn">Send Magic Link &rarr;</button>
                 </form>
 
-                <!-- ONBOARDING FLOW -->
+                <!-- ================= SIGNUP WIZARD FLOW (If NO) ================= -->
                 <form id="signUpWizard" class="wizard-step">
                     
-                    <!-- Q1: Name -->
+                    <!-- Slide 1: Name -->
                     <div class="onboard-slide active" id="slide-name">
-                        <h2>Hello, What's Your Name?</h2>
-                        <div class="input-group mt-2">
-                            <input type="text" id="regName" class="glass-input" placeholder="e.g. Abrar" required>
+                        <h2 class="type-target" data-text="Hello, What's Your Name?"></h2>
+                        <div class="step-content hidden-fade">
+                            <div class="input-group mt-2">
+                                <input type="text" id="regName" class="glass-input" placeholder="e.g. Abrar" required>
+                            </div>
+                            <div class="step-actions mt-2">
+                                <button type="button" class="btn-back" data-target="step-0">&larr;</button>
+                                <button type="button" class="btn-primary next-btn">Continue &rarr;</button>
+                            </div>
                         </div>
-                        <button type="button" class="btn-primary next-btn">Continue &rarr;</button>
                     </div>
 
-                    <!-- Q2: Domain -->
+                    <!-- Slide 2: Domain -->
                     <div class="onboard-slide" id="slide-domain">
-                        <h2>What domain do you want?</h2>
-                        <p class="subtitle">Your dedicated workspace URL</p>
-                        <div class="domain-input-group mt-2">
-                            <input type="text" id="regDomain" class="domain-field" placeholder="yourname" required>
-                            <span class="domain-suffix">.garages.storzen.io</span>
+                        <h2 class="type-target" data-text="What domain do you want?"></h2>
+                        <div class="step-content hidden-fade">
+                            <p class="subtitle">Your dedicated workspace URL</p>
+                            <div class="domain-input-group mt-2">
+                                <input type="text" id="regDomain" class="domain-field" placeholder="yourname" required>
+                                <span class="domain-suffix">.garages.storzen.io</span>
+                            </div>
+                            <div class="step-actions mt-2">
+                                <button type="button" class="btn-back prev-btn">&larr;</button>
+                                <button type="button" class="btn-primary next-btn">Continue &rarr;</button>
+                            </div>
                         </div>
-                        <button type="button" class="btn-primary next-btn">Continue &rarr;</button>
                     </div>
 
-                    <!-- Q3: Garage Name & City -->
+                    <!-- Slide 3: Garage Name & City -->
                     <div class="onboard-slide" id="slide-garage">
-                        <h2>Tell us about your business</h2>
-                        <div class="input-group mt-2">
-                            <input type="text" id="regGarageName" class="glass-input" placeholder="Garage Name" required>
+                        <h2 class="type-target" data-text="Tell us about your Garage."></h2>
+                        <div class="step-content hidden-fade">
+                            <div class="input-group mt-2">
+                                <input type="text" id="regGarageName" class="glass-input" placeholder="Garage Name" required>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="regCity" class="glass-input" placeholder="City" required>
+                            </div>
+                            <div class="step-actions mt-2">
+                                <button type="button" class="btn-back prev-btn">&larr;</button>
+                                <button type="button" class="btn-primary next-btn">Continue &rarr;</button>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <input type="text" id="regCity" class="glass-input" placeholder="City" required>
-                        </div>
-                        <button type="button" class="btn-primary next-btn">Continue &rarr;</button>
                     </div>
 
-                    <!-- Q4: Contact Details (Magic Link triggers here) -->
+                    <!-- Slide 4: Contact & Password -->
                     <div class="onboard-slide" id="slide-contact">
-                        <h2>Secure your account</h2>
-                        <p class="subtitle">We use passwordless secure links.</p>
-                        <div class="input-group mt-2">
-                            <input type="email" id="regEmail" class="glass-input" placeholder="Email Address" required>
+                        <h2 class="type-target" data-text="Secure your account."></h2>
+                        <div class="step-content hidden-fade">
+                            <p class="subtitle">We will send a verification link to your email.</p>
+                            <div class="input-group mt-2">
+                                <input type="email" id="regEmail" class="glass-input" placeholder="Email Address" required>
+                            </div>
+                            <div class="input-group">
+                                <input type="tel" id="regPhone" class="glass-input" placeholder="Mobile Number" required>
+                            </div>
+                            <div class="input-group">
+                                <input type="password" id="regPassword" class="glass-input" placeholder="Create Password" required>
+                            </div>
+                            <div class="step-actions mt-2">
+                                <button type="button" class="btn-back prev-btn">&larr;</button>
+                                <button type="button" class="btn-primary next-btn" id="sendVerificationBtn">Verify Email &rarr;</button>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <input type="tel" id="regPhone" class="glass-input" placeholder="Mobile Number" required>
-                        </div>
-                        <button type="button" class="btn-primary next-btn" id="sendVerificationBtn">Verify Email &rarr;</button>
                     </div>
 
-                    <!-- Q5: Pricing & Checkout -->
+                    <!-- Slide 5: Pricing / Checkout -->
                     <div class="onboard-slide" id="slide-checkout">
-                        <h2>Choose your plan</h2>
-                        <div class="pricing-card">
-                            <div class="plan-tag">Free 7-Day Trial</div>
-                            <h3>First Month: ₹28</h3>
-                            <p>Then ₹99/month.</p>
-                            <label class="yearly-toggle">
-                                <input type="checkbox" id="yearlyDiscount">
-                                <span>Switch to Yearly (10% Discount)</span>
-                            </label>
+                        <h2 class="type-target" data-text="Claim your 7-Day Free Trial."></h2>
+                        <div class="step-content hidden-fade">
+                            <div class="pricing-card">
+                                <div class="plan-tag">PRO PLAN</div>
+                                <h3>First Month: ₹28</h3>
+                                <p>Then ₹99/month.</p>
+                                <label class="yearly-toggle">
+                                    <input type="checkbox" id="yearlyDiscount">
+                                    <span>Switch to Yearly (10% Discount)</span>
+                                </label>
+                            </div>
+                            <div class="step-actions mt-4">
+                                <button type="button" class="btn-back prev-btn">&larr;</button>
+                                <button type="submit" class="btn-primary" id="finalCreateBtn">Start Trial &rarr;</button>
+                            </div>
                         </div>
-                        <button type="submit" class="btn-primary mt-4" id="finalCreateBtn">Start Free Trial &rarr;</button>
                     </div>
                     
                 </form>
@@ -127,7 +183,7 @@
         </main>
     </div>
 
-    <!-- Script loading -->
+    <!-- Scripts -->
     <script type="module" src="js/ui.js"></script>
     <script type="module" src="js/auth.js"></script>
 </body>
