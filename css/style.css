@@ -45,7 +45,7 @@ body {
 
 @media (min-width: 768px) { body { background-image: var(--bg-img-desktop); } }
 
-/* Dynamic Ambient Breathing */
+/* Ambient Breathing Background */
 .ambient-breath {
     position: fixed; inset: 0;
     background: rgba(0, 0, 0, 0.2);
@@ -55,7 +55,9 @@ body {
 .dark-theme .ambient-breath { background: rgba(0, 0, 0, 0.5); }
 @keyframes breath { 0% { opacity: 0.1; } 100% { opacity: 0.7; } }
 
-/* Premium Garage Loader */
+/* =========================================
+   SVG CAR LOADER STYLES 
+========================================= */
 .loader-overlay {
     position: fixed; inset: 0; z-index: 999;
     background: var(--glass-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
@@ -64,25 +66,51 @@ body {
 }
 .loader-overlay.hidden { opacity: 0; visibility: hidden; }
 
-.garage-loader {
-    width: 65px; height: 65px; border: 2px solid var(--glass-border);
-    border-radius: 10px; position: relative; overflow: hidden;
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
+.car-svg-container {
+    width: 250px; height: 100px;
+    margin-bottom: 20px;
 }
-.shutter {
-    width: 100%; height: 10px; background: var(--text-main);
-    position: absolute; top: 0; left: 0;
-    animation: shutterRoll 1.5s infinite alternate cubic-bezier(0.65, 0, 0.35, 1);
-}
-@keyframes shutterRoll { 0% { height: 10%; } 100% { height: 100%; } }
-.loader-text { margin-top: 25px; font-weight: 700; letter-spacing: 3px; font-size: 0.85rem; }
 
-/* Structural Layers */
+.car-outline-svg {
+    width: 100%; height: 100%;
+}
+
+/* SVG Line Drawing Animations */
+.car-body-path {
+    stroke-dasharray: 800; stroke-dashoffset: 800;
+    animation: drawLine 2s ease-in-out forwards infinite alternate;
+}
+.car-window-path {
+    stroke-dasharray: 300; stroke-dashoffset: 300;
+    animation: drawLine 1.5s ease-in-out 0.5s forwards infinite alternate;
+}
+.car-wheel-path {
+    stroke-dasharray: 100; stroke-dashoffset: 100;
+    animation: drawLine 1s ease-in-out 1s forwards infinite alternate;
+}
+.car-detail-path {
+    stroke-dasharray: 50; stroke-dashoffset: 50; stroke: #ff3333; /* Headlight color pop */
+    animation: blinkLight 2s infinite;
+}
+
+@keyframes drawLine { to { stroke-dashoffset: 0; } }
+@keyframes blinkLight { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+
+.loader-text {
+    font-weight: 700; letter-spacing: 3px; font-size: 0.85rem; color: var(--text-main);
+}
+.loading-dots { animation: ellipsis 1.5s infinite; }
+@keyframes ellipsis { 0% { content: "."; } 33% { content: ".."; } 66% { content: "..."; } }
+
+/* =========================================
+   STRUCTURAL UI 
+========================================= */
 .app-wrapper {
     position: relative; z-index: 10; display: flex; flex-direction: column;
-    min-height: 100vh; padding: 1.5rem; transition: filter 0.8s ease;
+    min-height: 100vh; padding: 1.5rem; transition: filter 0.8s ease, opacity 0.5s ease;
 }
 .app-wrapper.loading { filter: blur(20px); pointer-events: none; }
+.app-wrapper.hidden { display: none; }
 
 .header { display: flex; justify-content: space-between; align-items: center; z-index: 20; }
 .logo img { height: 42px; object-fit: contain; }
@@ -95,10 +123,10 @@ body {
 .theme-toggle:hover { transform: scale(1.1); }
 .icon { width: 22px; height: 22px; }
 
-/* 3D Glass Container */
+/* 3D Glass Panel */
 .main-content {
     flex: 1; display: flex; align-items: center; justify-content: center;
-    perspective: 1500px; /* Enhanced Depth for Gyroscope */
+    perspective: 1500px; 
 }
 @media (min-width: 768px) { .main-content { justify-content: flex-start; padding-left: 10%; } }
 
@@ -106,34 +134,50 @@ body {
     background: var(--glass-bg); backdrop-filter: blur(28px) saturate(180%);
     -webkit-backdrop-filter: blur(28px) saturate(180%);
     border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
-    border-radius: 32px; padding: 3rem 2.5rem; width: 100%; max-width: 440px;
+    border-radius: 32px; padding: 3.5rem 2.5rem 2.5rem 2.5rem; width: 100%; max-width: 440px;
     transform-style: preserve-3d; transition: transform 0.15s ease-out, background 0.4s ease;
-    will-change: transform; overflow: hidden; position: relative; min-height: 280px;
+    will-change: transform; overflow: hidden; position: relative; min-height: 320px;
 }
 
-/* Typography & Typewriter */
-.glass-panel h2 { font-size: 1.7rem; font-weight: 700; margin-bottom: 0.3rem; }
-.glass-panel .subtitle { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 2rem; }
+/* Close Button (Cross) */
+.close-btn {
+    position: absolute; top: 20px; right: 20px;
+    background: transparent; border: none; color: var(--text-main);
+    font-size: 1.8rem; line-height: 1; cursor: pointer;
+    opacity: 0.5; transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 50; transform: translateZ(30px);
+}
+.close-btn:hover { opacity: 1; transform: translateZ(30px) scale(1.1); }
 
-.typewriter-text { font-size: 1.6rem; font-weight: 600; min-height: 90px; line-height: 1.3; }
+/* Refresh Message */
+.refresh-msg {
+    position: fixed; inset: 0; z-index: 5;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 2rem; color: var(--text-main);
+}
+.refresh-msg.hidden { display: none; }
+.refresh-msg p { font-size: 1.2rem; font-weight: 600; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+
+/* =========================================
+   TYPEWRITER & WIZARD STEPS 
+========================================= */
+.wizard-step, .onboard-slide { display: none; opacity: 0; transition: opacity 0.4s ease; }
+.wizard-step.active, .onboard-slide.active { display: block; opacity: 1; }
+
+.type-target { font-size: 1.5rem; font-weight: 700; min-height: 75px; line-height: 1.3; transform: translateZ(10px); }
 .cursor {
-    display: inline-block; width: 3px; height: 1.2em; background-color: var(--text-main);
+    display: inline-block; width: 3px; height: 1.1em; background-color: var(--text-main);
     vertical-align: middle; animation: blink 0.8s infinite; margin-left: 2px;
 }
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-.decision-buttons { display: flex; gap: 12px; margin-top: 25px; }
-.hidden-fade { opacity: 0; pointer-events: none; transition: opacity 0.6s ease; transform: translateY(10px); }
-.hidden-fade.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
-
-/* Forms & Wizard Flow */
-.wizard-step, .onboard-slide { display: none; opacity: 0; transition: opacity 0.5s ease; }
-.wizard-step.active, .onboard-slide.active { display: block; opacity: 1; animation: slideUpFade 0.6s forwards; }
-@keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.step-content { opacity: 0; pointer-events: none; transition: opacity 0.6s ease; transform: translateY(15px); }
+.step-content.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.decision-buttons { display: flex; gap: 12px; margin-top: 25px; transform: translateZ(20px); }
 
 /* Inputs */
 .mt-2 { margin-top: 1.5rem; }
-.input-group { margin-bottom: 1.2rem; transform: translateZ(15px); } /* 3D Pop */
+.mt-4 { margin-top: 2rem; }
+.input-group { margin-bottom: 1.2rem; transform: translateZ(15px); } 
 .glass-input {
     width: 100%; padding: 16px; background: var(--input-bg);
     border: 1px solid var(--input-border); border-radius: 14px;
@@ -142,7 +186,6 @@ body {
 }
 .glass-input:focus { border-color: var(--text-main); background: var(--glass-bg); box-shadow: 0 0 15px rgba(255,255,255,0.1); }
 
-/* Domain Input Layout */
 .domain-input-group {
     display: flex; align-items: center; background: var(--input-bg);
     border: 1px solid var(--input-border); border-radius: 14px; overflow: hidden; margin-bottom: 1.2rem;
@@ -151,20 +194,31 @@ body {
 .domain-field { border: none; background: transparent; padding: 16px; width: 45%; outline: none; color: var(--text-main); font-family: inherit; font-size: 1.05rem; text-align: right;}
 .domain-suffix { padding: 16px 16px 16px 2px; color: var(--text-muted); font-size: 1rem; font-weight: 500; white-space: nowrap;}
 
-/* Buttons */
-.btn-primary, .btn-secondary, .next-btn {
-    padding: 16px; border: none; border-radius: 14px; font-weight: 600; font-size: 1.05rem;
-    cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease;
-    transform: translateZ(25px); /* Highest 3D Pop */
-}
-.btn-primary { width: 100%; background: var(--btn-bg); color: var(--btn-text); margin-top: 15px; }
-.btn-secondary { flex: 1; background: var(--btn-secondary); color: var(--text-main); border: 1px solid var(--glass-border); }
-.btn-primary:hover, .btn-secondary:hover { transform: translateZ(30px) translateY(-2px); box-shadow: 0 12px 20px rgba(0,0,0,0.2); }
+/* =========================================
+   BUTTONS (Back, Next, Submit) 
+========================================= */
+.step-actions { display: flex; align-items: center; gap: 12px; transform: translateZ(25px); }
 
-/* Pricing Table */
+.btn-back {
+    width: 50px; height: 50px; border-radius: 50%; border: 1px solid var(--glass-border);
+    background: var(--btn-secondary); color: var(--text-main);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; cursor: pointer; transition: transform 0.3s ease; flex-shrink: 0;
+}
+.btn-back:hover { transform: scale(1.05); }
+
+.btn-primary, .btn-secondary, .next-btn {
+    flex: 1; padding: 16px; border: none; border-radius: 14px; font-weight: 600; font-size: 1.05rem;
+    cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.btn-primary { background: var(--btn-bg); color: var(--btn-text); }
+.btn-secondary { background: var(--btn-secondary); color: var(--text-main); border: 1px solid var(--glass-border); }
+.btn-primary:hover, .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 12px 20px rgba(0,0,0,0.2); }
+
+/* Pricing Card */
 .pricing-card {
     background: var(--input-bg); border: 1px solid var(--input-border);
-    border-radius: 16px; padding: 25px 20px; text-align: center; margin-top: 25px;
+    border-radius: 16px; padding: 25px 20px; text-align: center; margin-top: 15px;
     position: relative; transform: translateZ(20px);
 }
 .plan-tag {
