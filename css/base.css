@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Base Backgrounds */
+    --bg-img-mobile: url('../bright-mobile.wo.png');
+    --bg-img-desktop: url('../bright-desktop.wo.png');
+    
+    /* Glass Colors - Light Mode */
+    --glass-bg: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    
+    /* Text & Accents */
+    --text-main: #1a1a2e;
+    --text-muted: #4a5568;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    
+    /* Inputs & Buttons */
+    --input-bg: rgba(255, 255, 255, 0.35);
+    --input-border: rgba(0, 0, 0, 0.1);
+    --btn-bg: #111;
+    --btn-text: #fff;
+    --btn-secondary: rgba(255, 255, 255, 0.4);
+}
+
+html.dark-theme, body.dark-theme {
+    --bg-img-mobile: url('../dark-mobile.wo.png');
+    --bg-img-desktop: url('../dark-desktop.wo.png');
+    
+    --glass-bg: rgba(10, 10, 15, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+    
+    --text-main: #ffffff;
+    --text-muted: #a0aec0;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    
+    --input-bg: rgba(0, 0, 0, 0.5);
+    --input-border: rgba(255, 255, 255, 0.15);
+    --btn-bg: #fff;
+    --btn-text: #000;
+    --btn-secondary: rgba(0, 0, 0, 0.5);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow: hidden; /* Crucial for custom parallax */
+    background-color: #000;
+}
+
+/* ==========================================
+   3D PARALLAX BACKGROUND SYSTEM
+========================================== */
+#parallax-bg-container {
+    position: fixed; inset: -5%; /* Slightly larger to allow panning */
+    width: 110vw; height: 110vh;
+    z-index: 0; pointer-events: none;
+    perspective: 1000px;
+}
+
+.parallax-layer {
+    position: absolute; inset: 0;
+    background-size: cover;
+    background-position: center;
+    will-change: transform;
+    transition: background-image 0.8s ease-in-out;
+}
+
+#bg-layer {
+    background-image: var(--bg-img-mobile);
+}
+@media (min-width: 768px) { #bg-layer { background-image: var(--bg-img-desktop); } }
+
+/* Ambient Breathing Overlay */
+.ambient-breath {
+    position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.2);
+    animation: breath 8s infinite alternate ease-in-out;
+}
+.dark-theme .ambient-breath { background: rgba(0, 0, 0, 0.5); }
+@keyframes breath { 0% { opacity: 0.1; } 100% { opacity: 0.7; } }
+
+/* Utility Classes */
+.hidden { display: none !important; }
+.mt-2 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+.text-center { text-align: center; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.text-link { color: var(--text-main); font-weight: 600; font-size: 0.9rem; text-decoration: none; }
+.text-link:hover { text-decoration: underline; }
