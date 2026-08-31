@@ -9,6 +9,7 @@ import {
 import { 
     doc, 
     setDoc, 
+    updateDoc,
     serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 import { showIsland } from '../ui/interactions.js';
@@ -16,7 +17,7 @@ import { showIsland } from '../ui/interactions.js';
 export function initAuthFlow() {
     
     // ==========================================
-    // 1. STANDARD LOGIN FLOW
+    // 1. SECURE LOGIN FLOW
     // ==========================================
     const signInForm = document.getElementById('signInForm');
     
@@ -36,17 +37,25 @@ export function initAuthFlow() {
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 
+                // SPAM PROTECTION: Strict Email Verification Check
                 if (!userCredential.user.emailVerified) {
-                    showIsland('Please verify your email first.', '⚠️');
+                    showIsland('Access Denied. Please click the verification link sent to your email.', '⚠️');
                     await auth.signOut();
                     resetButton(submitBtn, originalText);
                     return;
                 }
 
+                // Activate Trial in Firestore upon first verified login
+                const userDocRef = doc(db, "workshops", userCredential.user.uid);
+                await updateDoc(userDocRef, {
+                    "subscription.status": "trial_active",
+                    "subscription.lastLogin": serverTimestamp()
+                }).catch(err => console.log("Doc update skipped/failed", err)); // Silently catch if already updated
+
                 showIsland('Welcome back! Loading workspace...', '✅');
                 if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
                 
-                // Redirect to dashboard
+                // Redirect to dashboard (Uncomment when dashboard is ready)
                 // setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
                 
             } catch (error) {
@@ -83,7 +92,6 @@ export function initAuthFlow() {
                 await sendPasswordResetEmail(auth, email);
                 showIsland('Magic link sent to your inbox!', '✨');
                 
-                // Start 30s Cooldown
                 isCooldown = true;
                 forgotPassLink.classList.add('hidden');
                 cooldownTimer.classList.remove('hidden');
@@ -111,7 +119,7 @@ export function initAuthFlow() {
     }
 
     // ==========================================
-    // 3. ACCOUNT CREATION & FIRESTORE SAVE
+    // 3. ACCOUNT CREATION (FROZEN STATE)
     // ==========================================
     const signUpWizard = document.getElementById('signUpWizard');
 
@@ -126,7 +134,6 @@ export function initAuthFlow() {
             finalBtn.style.opacity = '0.6';
 
             try {
-                // Gather Data
                 const name = document.getElementById('regName').value.trim();
                 const domain = document.getElementById('regDomain').value.trim();
                 const garageName = document.getElementById('regGarageName').value.trim();
@@ -136,13 +143,11 @@ export function initAuthFlow() {
                 const password = document.getElementById('regPassword').value;
                 const isYearly = document.getElementById('yearlyDiscount').checked;
                 
-                // Gather Checkbox Chips
                 const garageTypes = [];
                 document.querySelectorAll('input[name="garageType"]:checked').forEach(chip => {
                     garageTypes.push(chip.value);
                 });
 
-                // Gather Logo Base64
                 let logoBase64 = null;
                 const logoInput = document.getElementById('regLogoInput');
                 if (logoInput.files && logoInput.files[0]) {
@@ -153,9 +158,11 @@ export function initAuthFlow() {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 await updateProfile(user, { displayName: name });
+                
+                // SEND VERIFICATION MAGIC LINK
                 await sendEmailVerification(user);
 
-                // Build Firestore Payload
+                // Build Firestore Payload (Locked State)
                 const workspaceData = {
                     ownerId: user.uid,
                     ownerName: name,
@@ -173,7 +180,7 @@ export function initAuthFlow() {
                     },
                     subscription: {
                         plan: isYearly ? 'yearly' : 'monthly',
-                        status: 'trial_pending_verification',
+                        status: 'pending_verification', // Account is useless until verified
                         trialExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
                         firstMonthPrice: 28,
                         regularPrice: isYearly ? 1069 : 99 
@@ -181,12 +188,12 @@ export function initAuthFlow() {
                     createdAt: serverTimestamp()
                 };
 
-                // Save to Firestore
                 await setDoc(doc(db, "workshops", user.uid), workspaceData);
 
-                showIsland('Workspace Created! Check email to verify.', '🎉');
+                showIsland('Account locked. Verify email to activate!', '🔒');
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                 
+                // Immediately log them out to prevent unverified dashboard access
                 await auth.signOut();
                 finalBtn.innerHTML = 'Check your Inbox!';
 
@@ -200,14 +207,12 @@ export function initAuthFlow() {
         });
     }
 
-    // Utility: Reset Button
     function resetButton(btn, text) {
         btn.innerHTML = text;
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
     }
 
-    // Utility: Convert File to Base64
     function toBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
